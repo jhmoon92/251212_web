@@ -1,0 +1,10 @@
+{
+  "defaultServerUrl" : "admindev.moni-care.com",
+  "locales" : [ "en_US","ko_KR" ],
+  "defaultPlaceName" : "My Home",
+  "defaultPlaceType" : "Home",
+  "defaultPlaceIcon" : "icon0",
+  "defaultSensingType" : "Living Room",
+  "defaultSensingIcon" : "icon0",
+  "defaultSensingColor" : "color0"
+}
