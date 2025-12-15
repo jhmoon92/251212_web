@@ -55,12 +55,11 @@ class _GoogleMapSearchScreenState extends State<GoogleMapSearchScreen> {
 
   // 1. 고정 위치 정의 (3개 위치)
   // 일본 법인 VORT Bldg Ⅲ (타이토구 야나기바시)
-  static const LatLng _vortBuilding = LatLng(35.700140, 139.789189);
+  static const LatLng _vortBuilding = LatLng(35.69617387432273, 139.78578119923532);
   // 도쿄 타워 (미나토구 시바코엔)
   static const LatLng _tokyoTower = LatLng(35.658581, 139.745433);
   // 아자부다이힐스 모리 JP 타워 (미나토구 아자부다이)
-  static const LatLng _azabudaiHills = LatLng(35.663181, 139.737158);
-
+  static const LatLng _azabudaiHills = LatLng(35.660922, 139.740776);
   // 고정 마커 위치 리스트 (Bounds 계산용)
   final List<LatLng> _fixedMarkerPositions = const [
     _vortBuilding,
@@ -247,7 +246,7 @@ class _GoogleMapSearchScreenState extends State<GoogleMapSearchScreen> {
           mapType: MapType.normal,
           initialCameraPosition: _kInitialPosition,
           markers: _markers,
-          // style: _mapStyleJson,
+          style: _mapStyleJson,
           onMapCreated: (GoogleMapController controller) {
             _controller.complete(controller);
           },
