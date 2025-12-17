@@ -94,9 +94,12 @@ Widget addButton(String text, VoidCallback onTap, {Widget? imageWidget}) {
   return InkWell(
     onTap: onTap,
     child: Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      width: 256,
+      height: 40,
+      alignment: Alignment.center,
       decoration: BoxDecoration(color: themeYellow, borderRadius: BorderRadius.circular(8)),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           imageWidget ?? SvgPicture.asset('assets/images/ic_24_add.svg'),
           const SizedBox(width: 4),

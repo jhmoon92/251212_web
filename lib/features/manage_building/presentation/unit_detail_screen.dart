@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:moni_pod_web/common_widgets/status_chip.dart';
 import 'package:moni_pod_web/features/manage_building/presentation/building_detail_screen.dart';
 
 import '../../../common/util/util.dart';
@@ -13,8 +14,9 @@ import '../../../config/style.dart';
 import '../domain/unit_model.dart';
 
 class UnitDetailScreen extends ConsumerStatefulWidget {
-  const UnitDetailScreen({required this.unitInfo, super.key});
+  const UnitDetailScreen({required this.building, required this.unitInfo, super.key});
 
+  final Building building;
   final Unit unitInfo;
 
   @override
@@ -36,12 +38,11 @@ class _UnitDetailScreenState extends ConsumerState<UnitDetailScreen> {
           } else if (totalAvailableMargin < 0) {
             totalAvailableMargin = 0;
           }
-          final double horizontalPadding = totalAvailableMargin / 2;
           const double breakpoint = 1000.0;
           final bool isNarrowScreen = screenWidth < breakpoint;
 
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            padding: EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -49,17 +50,29 @@ class _UnitDetailScreenState extends ConsumerState<UnitDetailScreen> {
                 const SizedBox(height: 16),
                 isNarrowScreen
                     ? Column(
-                      children: [_RightPanel(unitInfo: widget.unitInfo), const SizedBox(height: 16), _LeftPanel(unitInfo: widget.unitInfo)],
-                    )
-                    : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(flex: 3, child: _LeftPanel(unitInfo: widget.unitInfo)),
-                        const SizedBox(width: 16),
-                        Expanded(flex: 7, child: _RightPanel(unitInfo: widget.unitInfo)),
+                        _StatusCard(widget.unitInfo),
+                        const SizedBox(height: 16),
+                        _RightPanel(unitInfo: widget.unitInfo),
+                        const SizedBox(height: 16),
+                        _LeftPanel(unitInfo: widget.unitInfo),
+                      ],
+                    )
+                    : Column(
+                      children: [
+                        _StatusCard(widget.unitInfo),
+                        const SizedBox(height: 24),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 3, child: _LeftPanel(unitInfo: widget.unitInfo)),
+                            const SizedBox(width: 16),
+                            Expanded(flex: 7, child: _RightPanel(unitInfo: widget.unitInfo)),
+                          ],
+                        ),
                       ],
                     ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
               ],
             ),
           );
@@ -72,25 +85,18 @@ class _UnitDetailScreenState extends ConsumerState<UnitDetailScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
-          children: [
-            InkWell(
-              onTap: () {
-                context.pop();
-              },
-              child: const Icon(Icons.arrow_back, size: 24, color: commonBlack),
-            ),
-            const SizedBox(width: 24),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${widget.unitInfo.number}', style: headLineSmall(commonBlack)),
-                const SizedBox(height: 4),
-                Text('123 Maple Ave, Springfield', style: bodyCommon(commonGrey6)),
-              ],
-            ),
-          ],
+        InkWell(
+          onTap: () {
+            context.pop();
+          },
+          child: SvgPicture.asset('assets/images/ic_24_previous.svg', colorFilter: const ColorFilter.mode(commonBlack, BlendMode.srcIn)),
         ),
+        const SizedBox(width: 12),
+        Text(widget.unitInfo.number, style: headLineSmall(commonBlack)),
+        Expanded(child: SizedBox()),
+        SvgPicture.asset('assets/images/ic_24_location.svg', colorFilter: ColorFilter.mode(commonGrey6, BlendMode.srcIn)),
+        const SizedBox(width: 4),
+        Text(widget.building.address, style: captionCommon(commonBlack)),
       ],
     );
   }
@@ -107,9 +113,9 @@ class _LeftPanel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _ResidentCard(unitInfo: unitInfo),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         _ManagerCard(unitInfo: unitInfo),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         InstalledDeviceCard(devices: unitInfo.devices),
       ],
     );
@@ -129,33 +135,31 @@ class _ManagerCardState extends State<_ManagerCard> {
   bool _isEditing = false;
 
   Widget _buildInfoRow(String key, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(key, style: bodyCommon(commonGrey7)),
-          Row(
-            children: [
-              if (key == 'Contact')
-                SvgPicture.asset(
-                  'assets/images/ic_32_call.svg',
-                  width: 20,
-                  fit: BoxFit.fitWidth,
-                  colorFilter: ColorFilter.mode(commonBlack, BlendMode.srcIn),
-                ),
-              Text(value, style: bodyCommon(commonBlack)),
-            ],
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        SizedBox(width: 90, child: Text(key, style: titleCommon(commonGrey7))),
+        Expanded(
+          child:
+              _isEditing && key == 'Name'
+                  ? SizedBox(
+                    height: 40,
+                    child: MangerDropDown(
+                      onChanged: (String value) {
+                        setState(() {});
+                      },
+                    ),
+                  )
+                  : Text(value, style: titleCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: commonWhite,
         borderRadius: BorderRadius.circular(8),
@@ -166,8 +170,6 @@ class _ManagerCardState extends State<_ManagerCard> {
         children: [
           Row(
             children: [
-              Icon(Icons.manage_accounts, size: 24, color: commonGrey6),
-              SizedBox(width: 8),
               Text('Manager', style: titleLarge(commonBlack)),
               Expanded(child: Container()),
               !_isEditing
@@ -177,7 +179,10 @@ class _ManagerCardState extends State<_ManagerCard> {
                         _isEditing = !_isEditing;
                       });
                     },
-                    child: const Icon(Icons.edit_outlined, color: commonGrey5, size: 20),
+                    child: SvgPicture.asset(
+                      "assets/images/ic_24_edit.svg",
+                      colorFilter: const ColorFilter.mode(commonBlack, BlendMode.srcIn),
+                    ),
                   )
                   : Row(
                     children: [
@@ -189,7 +194,15 @@ class _ManagerCardState extends State<_ManagerCard> {
                             }
                           });
                         },
-                        child: const Icon(Icons.close, color: Colors.red, size: 24),
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(
+                              "assets/images/ic_24_cancel.svg",
+                              colorFilter: const ColorFilter.mode(commonGrey6, BlendMode.srcIn),
+                            ),
+                            Text('Cancel', style: captionTitle(commonBlack)),
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 12),
                       InkWell(
@@ -199,32 +212,31 @@ class _ManagerCardState extends State<_ManagerCard> {
                               _isEditing = !_isEditing;
                             }
                           });
-                        }, // 저장 시 true 전달
-                        child: const Icon(Icons.check, color: themeGreen, size: 24),
+                        },
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(
+                              "assets/images/ic_24_check.svg",
+                              colorFilter: const ColorFilter.mode(successGreen, BlendMode.srcIn),
+                            ),
+                            Text('Save', style: captionTitle(successGreen)),
+                          ],
+                        ),
                       ),
                     ],
                   ),
             ],
           ),
-          const Divider(height: 24, thickness: 1, color: commonGrey2),
-          _isEditing
-              ? Center(
-                child: MangerDropDown(
-                  onChanged: (String value) {
-                    setState(() {
-                    });
-                  },
-                ),
-              )
-              : Column(
-                children: [
-                  _buildInfoRow('Name', widget.unitInfo.manager.name),
-                  const SizedBox(height: 8),
-                  _buildInfoRow('Account', widget.unitInfo.manager.account),
-                  const SizedBox(height: 8),
-                  _buildInfoRow('Contact', widget.unitInfo.manager.contact),
-                ],
-              ),
+          SizedBox(height: _isEditing ? 16 : 24),
+          Column(
+            children: [
+              _buildInfoRow('Name', widget.unitInfo.manager.name),
+              SizedBox(height: _isEditing ? 22 : 28),
+              _buildInfoRow('Account', widget.unitInfo.manager.account),
+              const SizedBox(height: 28),
+              _buildInfoRow('Contact', widget.unitInfo.manager.contact),
+            ],
+          ),
         ],
       ),
     );
@@ -283,7 +295,7 @@ class _ResidentCardState extends State<_ResidentCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: commonWhite,
         borderRadius: BorderRadius.circular(8),
@@ -294,25 +306,48 @@ class _ResidentCardState extends State<_ResidentCard> {
         children: [
           Row(
             children: [
-              SvgPicture.asset('assets/images/ic_24_person.svg', colorFilter: ColorFilter.mode(commonGrey6, BlendMode.srcIn)),
-              const SizedBox(width: 8),
               Text('Resident', style: titleLarge(commonBlack)),
               Expanded(child: Container()),
               !_isEditing
-                  ? InkWell(onTap: () => _toggleEdit(false), child: const Icon(Icons.edit_outlined, color: commonGrey5, size: 20))
+                  ? InkWell(
+                    onTap: () => _toggleEdit(false),
+                    child: SvgPicture.asset(
+                      "assets/images/ic_24_edit.svg",
+                      colorFilter: const ColorFilter.mode(commonBlack, BlendMode.srcIn),
+                    ),
+                  )
                   : Row(
                     children: [
-                      InkWell(onTap: () => _toggleEdit(false), child: const Icon(Icons.close, color: Colors.red, size: 24)),
+                      InkWell(
+                        onTap: () => _toggleEdit(false),
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(
+                              "assets/images/ic_24_cancel.svg",
+                              colorFilter: const ColorFilter.mode(commonGrey6, BlendMode.srcIn),
+                            ),
+                            Text('Cancel', style: captionTitle(commonBlack)),
+                          ],
+                        ),
+                      ),
                       const SizedBox(width: 12),
                       InkWell(
                         onTap: () => _toggleEdit(true), // 저장 시 true 전달
-                        child: const Icon(Icons.check, color: themeGreen, size: 24),
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(
+                              "assets/images/ic_24_check.svg",
+                              colorFilter: const ColorFilter.mode(successGreen, BlendMode.srcIn),
+                            ),
+                            Text('Save', style: captionTitle(successGreen)),
+                          ],
+                        ),
                       ),
                     ],
                   ),
             ],
           ),
-          const Divider(height: 24, thickness: 1, color: commonGrey2),
+          const SizedBox(height: 24),
           _isEditing ? _buildEditMode() : _buildReadMode(),
         ],
       ),
@@ -324,11 +359,11 @@ class _ResidentCardState extends State<_ResidentCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildReadRow('Name', _nameController.text),
-        const SizedBox(height: 8),
+        const SizedBox(height: 28),
         _buildReadRow('Born', _bornController.text),
-        const SizedBox(height: 8),
+        const SizedBox(height: 28),
         _buildReadRow('Gender', _genderValue),
-        const SizedBox(height: 8),
+        const SizedBox(height: 28),
         _buildReadRow('Phone', _phoneController.text),
       ],
     );
@@ -336,73 +371,77 @@ class _ResidentCardState extends State<_ResidentCard> {
 
   Widget _buildEditMode() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildEditField('Name', _nameController),
+        const SizedBox(height: 8),
         _buildEditField('Born', _bornController),
+        const SizedBox(height: 8),
         _buildEditDropdown('Gender', _genderOptions, _genderValue, (String? newValue) {
           if (newValue != null) {
             setState(() => _genderValue = newValue);
           }
         }),
+        const SizedBox(height: 8),
+
         _buildEditField('Phone', _phoneController),
       ],
     );
   }
 
   Widget _buildReadRow(String key, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(key, style: bodyCommon(commonGrey7)), Text(value, style: bodyCommon(commonBlack))],
-      ),
-    );
-  }
-
-  Widget _buildEditField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Text(label, style: bodyCommon(commonGrey7)),
-        const SizedBox(height: 4),
-        InputBox(
-          controller: controller,
-          label: label,
-          maxLength: 32,
-          isErrorText: true,
-          onSaved: (val) {},
-          textStyle: bodyCommon(commonBlack),
-          textType: 'normal',
-          validator: (value) {
-            return null;
-          },
-        ),
-        const SizedBox(height: 8),
+        SizedBox(width: 90, child: Text(key, style: titleCommon(commonGrey7))),
+        Expanded(child: Text(value, style: titleCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis)),
       ],
     );
   }
 
-  Widget _buildEditDropdown(String label, List<String> options, String currentValue, Function(String?) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildEditField(String key, TextEditingController controller) {
+    return Row(
       children: [
-        Text(label, style: bodyCommon(commonGrey7)),
-        const SizedBox(height: 4),
-        Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(border: Border.all(color: commonGrey4, width: 1), borderRadius: BorderRadius.circular(4)),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              isExpanded: true,
-              value: currentValue,
-              icon: const Icon(Icons.keyboard_arrow_down, color: commonGrey7),
-              style: bodyCommon(commonBlack),
-              onChanged: onChanged,
-              items:
-                  options.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(value: value, child: Text(value, style: bodyCommon(commonBlack)));
-                  }).toList(),
+        SizedBox(width: 80, child: Text(key, style: titleCommon(commonGrey7))),
+        Expanded(
+          child: InputBox(
+            controller: controller,
+            label: key,
+            maxLength: 32,
+            isErrorText: true,
+            onSaved: (val) {},
+            textStyle: bodyCommon(commonBlack),
+            textType: 'normal',
+            validator: (value) {
+              return null;
+            },
+            isTight: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEditDropdown(String key, List<String> options, String currentValue, Function(String?) onChanged) {
+    return Row(
+      children: [
+        SizedBox(width: 90, child: Text(key, style: titleCommon(commonGrey7))),
+        Expanded(
+          child: Container(
+            height: 40,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(border: Border.all(color: commonGrey4, width: 1), borderRadius: BorderRadius.circular(4)),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isExpanded: true,
+                value: currentValue,
+                icon: const Icon(Icons.keyboard_arrow_down, color: commonGrey7),
+                style: bodyCommon(commonBlack),
+                onChanged: onChanged,
+                items:
+                    options.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(value: value, child: Text(value, style: bodyCommon(commonBlack)));
+                    }).toList(),
+              ),
             ),
           ),
         ),
@@ -420,7 +459,7 @@ class InstalledDeviceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: commonWhite,
         borderRadius: BorderRadius.circular(8),
@@ -429,22 +468,17 @@ class InstalledDeviceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 헤더
-          Row(
-            children: [
-              SvgPicture.asset('assets/images/ic_24_pod.svg', colorFilter: ColorFilter.mode(commonGrey6, BlendMode.srcIn)),
-              const SizedBox(width: 8),
-              Text('Installed Devices', style: titleLarge(commonBlack)),
-            ],
-          ),
-          const Divider(height: 24, thickness: 1, color: commonGrey2),
+          Text('Installed Devices', style: titleLarge(commonBlack)),
+          const SizedBox(height: 4),
           ListView.builder(
             shrinkWrap: true,
             itemCount: devices.length,
             itemBuilder: (BuildContext context, int index) {
-              return Container(
-                margin: EdgeInsets.only(bottom: index == devices.length - 1 ? 0 : 12),
-                child: _DeviceListItem(devices: devices[index]),
+              return Column(
+                children: [
+                  _DeviceListItem(devices: devices[index]),
+                  index == devices.length - 1 ? SizedBox() : Container(height: 1, color: commonGrey3),
+                ],
               );
             },
           ),
@@ -462,43 +496,53 @@ class _DeviceListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: commonGrey1.withOpacity(0.7), borderRadius: BorderRadius.circular(8)),
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(color: commonWhite),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. 이름 및 ONLINE/OFFLINE 태그
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              SvgPicture.asset('assets/images/ic_24_pod.svg', colorFilter: ColorFilter.mode(commonBlack, BlendMode.srcIn)),
+              const SizedBox(width: 4),
               Text(devices.name, style: bodyCommon(commonBlack)),
+              Expanded(child: SizedBox()),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: devices.status == 'ONLINE' ? themeGreen.withOpacity(0.1) : commonGrey4.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
+                  color: devices.status == 'ONLINE' ? successGreenBg1 : commonGrey2,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(
-                  devices.status == 'ONLINE' ? 'ONLINE' : 'OFFLINE',
-                  style: captionPoint(devices.status == 'ONLINE' ? themeGreen : commonGrey5),
+                child: Row(
+                  children: [
+                    Container(
+                      height: 6,
+                      width: 6,
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: devices.status == 'ONLINE' ? successGreen : commonGrey6),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      devices.status == 'ONLINE' ? 'Online' : 'Offline',
+                      style: captionPoint(devices.status == 'ONLINE' ? successGreen : commonGrey6),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
 
-          Text(devices.serialNumber, style: captionCommon(commonGrey7)),
-
-          const Divider(height: 20, thickness: 0.3, color: commonGrey4),
-
-          // 3. 설치 정보
+          Padding(padding: const EdgeInsets.only(left: 32), child: Text(devices.serialNumber, style: captionCommon(commonGrey5))),
+          const SizedBox(height: 12),
           Row(
             children: [
-              Text('Installed by', style: captionCommon(commonGrey7)),
+              const SizedBox(width: 32),
+
+              Text('Installed by', style: captionCommon(commonBlack)),
               const SizedBox(width: 4),
-              Text(devices.installer, style: captionCommon(themeBlue)),
+              Text(devices.installer, style: captionCommon(commonBlack)),
               const Spacer(),
-              Text(DateFormat('yyyy.MM.dd. HH:mm').format(devices.installationDate), style: captionCommon(commonGrey7)),
+              Text(DateFormat('yyyy.MM.dd. HH:mm').format(devices.installationDate), style: captionCommon(commonGrey5)),
             ],
           ),
         ],
@@ -515,7 +559,7 @@ class _RightPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 👈 Expanded 제거
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_StatusCard(unitInfo), SizedBox(height: 16), _CareLogCard()]);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_CareLogCard()]);
   }
 }
 
@@ -527,80 +571,33 @@ class _StatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      height: 72,
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color:
             unit.status == 'critical'
-                ? Colors.red.withOpacity(0.1)
+                ? warningRedBg2
                 : unit.status == 'warning'
-                ? themeYellow.withOpacity(0.1)
+                ? cautionYellowBg2
                 : unit.status == 'offline'
-                ? commonGrey2
-                : pointGreen.withOpacity(0.1),
+                ? commonGrey3
+                : successGreenBg2,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color:
-              unit.status == 'critical'
-                  ? Colors.red
-                  : unit.status == 'warning'
-                  ? themeYellow
-                  : unit.status == 'offline'
-                  ? commonGrey5
-                  : pointGreen,
-          width: 1,
-        ),
       ),
       child: Row(
         children: [
-          SvgPicture.asset(
-            unit.status == 'critical'
-                ? 'assets/images/ic_32_critical.svg'
-                : unit.status == 'warning'
-                ? 'assets/images/ic_32_warning.svg'
-                : unit.status == 'offline'
-                ? 'assets/images/ic_48_wi-fi_error.svg'
-                : 'assets/images/ic_48_wi-fi.svg',
-            width: 48,
-            fit: BoxFit.fitWidth,
-            colorFilter:
-                unit.status == 'critical' ||
-                        unit.status ==
-                            'warning' // 이 부분을 수정했습니다.
-                    ? null // 'critical' 또는 'warning'일 때는 ColorFilter를 적용하지 않음
-                    : ColorFilter.mode(unit.status == 'offline' ? commonGrey5 : pointGreen, BlendMode.srcIn),
-          ),
-          const SizedBox(width: 16),
+          StatusChip(status: unit.status),
+          const SizedBox(width: 12),
           Text(
-            unit.status.toUpperCase(),
-            style: headLineSmall(
+            'Last Motion : ${formatMinutesToTimeAgo(unit.lastMotion)}',
+            style: titleLarge(
               unit.status == 'critical'
-                  ? Colors.red
+                  ? warningRed
                   : unit.status == 'warning'
                   ? themeYellow
                   : unit.status == 'offline'
-                  ? commonGrey5
-                  : pointGreen,
-            ),
-          ),
-          Expanded(child: Container()),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color:
-                  unit.status == 'critical'
-                      ? Colors.red
-                      : unit.status == 'warning'
-                      ? themeYellow
-                      : unit.status == 'offline'
-                      ? commonGrey4
-                      : themeGreen,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                SvgPicture.asset('assets/images/ic_24_motion.svg', colorFilter: ColorFilter.mode(commonWhite, BlendMode.srcIn)),
-                Text('Last Motion : ${formatMinutesToTimeAgo(unit.lastMotion)}', style: bodyTitle(commonWhite)),
-              ],
+                  ? commonGrey6
+                  : successGreen,
             ),
           ),
         ],
@@ -624,22 +621,19 @@ class _CareLogCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              SvgPicture.asset('assets/images/ic_24_log.svg', colorFilter: ColorFilter.mode(commonGrey6, BlendMode.srcIn)),
-              const SizedBox(width: 8),
-              Text('Care Log', style: titleLarge(commonBlack)),
-            ],
-          ),
-          const Divider(height: 24, thickness: 1, color: commonGrey2),
-
-          // 👈 ListView 수정: Expanded 대신 shrinkWrap 사용
+          Text('Care Log', style: titleLarge(commonBlack)),
+          SizedBox(height: 12),
           ListView(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(), // 외부 스크롤 사용
             padding: EdgeInsets.zero,
             children: const [
-              _CareLogItem(user: 'John Doe', message: 'Routine checkup call completed.', time: '2023-10-25 14:00'),
+              _CareLogItem(
+                user: 'John Doe',
+                message:
+                    'Throughout the day, the system continuously monitored the resident’s activity levels and confirmed consistent movement during key daily routines, suggesting that the resident was able to carry out essential activities independently; additionally, no signs of distress or unusual inactivity were identified, and the overall behavioral pattern remains within the normal range for this resident, providing reassurance regarding their current well-being.',
+                time: '2023-10-25 14:00',
+              ),
               _CareLogItem(
                 type: 'System',
                 message: 'Monthly activity report generated.',
@@ -660,10 +654,10 @@ class _CareLogCard extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 48),
 
-          const Divider(height: 24, thickness: 1, color: commonGrey2),
-          Text('ADD NEW LOG ENTRY', style: captionCommon(commonGrey7)),
-          const SizedBox(height: 8),
+          Text('Add new log entry', style: titleSmall(commonBlack)),
+          const SizedBox(height: 12),
           const _NewLogEntry(),
         ],
       ),
@@ -685,16 +679,16 @@ class _CareLogItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isSystem = type != null;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 30,
-            height: 30,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(shape: BoxShape.circle, color: isSystem ? commonGrey5 : themeBlue),
             alignment: Alignment.center,
-            child: Text(isSystem ? 'S' : user![0], style: bodyCommon(commonWhite).copyWith(fontWeight: FontWeight.bold)),
+            child: Text(isSystem ? 'S' : user![0], style: titleLarge(commonWhite)),
           ),
           const SizedBox(width: 12),
 
@@ -702,8 +696,9 @@ class _CareLogItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(isSystem ? type! : user!, style: bodyCommon(commonBlack).copyWith(fontWeight: FontWeight.bold)),
-                Text(message, style: bodyCommon(commonGrey7)),
+                Text(isSystem ? type! : user!, style: bodyTitle(commonBlack)),
+                const SizedBox(height: 2),
+                Text(message, style: titleCommon(commonGrey7)),
                 if (fileName != null) _buildAttachmentChip(fileName!),
               ],
             ),
@@ -718,16 +713,16 @@ class _CareLogItem extends StatelessWidget {
   Widget _buildAttachmentChip(String fileName) {
     return Container(
       margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: commonGrey2, borderRadius: BorderRadius.circular(4)),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(color: newBlueBg1, borderRadius: BorderRadius.circular(4)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.file_present, size: 14, color: commonGrey7),
-          const SizedBox(width: 4),
+          SvgPicture.asset("assets/images/ic_16_attach.svg"),
+          const SizedBox(width: 8),
           Text(fileName, style: captionCommon(commonBlack)),
-          const SizedBox(width: 4),
-          const Icon(Icons.download_outlined, size: 14, color: commonGrey7),
+          const SizedBox(width: 16),
+          SvgPicture.asset("assets/images/ic_16_download.svg"),
         ],
       ),
     );
@@ -739,40 +734,35 @@ class _NewLogEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(border: Border.all(color: commonGrey2, width: 1), borderRadius: BorderRadius.circular(8)),
-      child: Column(
-        children: [
-          TextFormField(
-            style: bodyCommon(commonBlack),
-            decoration: InputDecoration(
-              hintText: "Enter consultation notes or actions taken...",
-              isDense: true,
-              hintStyle: bodyCommon(commonGrey3),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade400, width: 1.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade400, width: 1.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                // 2. 포커스 시 테마 색상 적용
-                borderSide: const BorderSide(color: themeYellow, width: 2.0),
-              ),
-              contentPadding: const EdgeInsets.all(16),
+    return Column(
+      children: [
+        TextFormField(
+          style: bodyCommon(commonBlack),
+          decoration: InputDecoration(
+            hintText: "Enter consultation notes or actions taken...",
+            isDense: true,
+            hintStyle: bodyCommon(commonGrey3),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey.shade400, width: 1.0),
             ),
-            maxLines: 3,
-            // validator: validator,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey.shade400, width: 1.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              // 2. 포커스 시 테마 색상 적용
+              borderSide: const BorderSide(color: themeYellow, width: 2.0),
+            ),
+            contentPadding: const EdgeInsets.all(16),
           ),
-          const SizedBox(height: 8),
-          Row(mainAxisAlignment: MainAxisAlignment.end, children: [addButton('Add Log', () {})]),
-          const SizedBox(height: 8),
-        ],
-      ),
+          maxLines: 3,
+          // validator: validator,
+        ),
+        const SizedBox(height: 16),
+        Row(mainAxisAlignment: MainAxisAlignment.end, children: [addButton('Add Log', () {})]),
+      ],
     );
   }
 }

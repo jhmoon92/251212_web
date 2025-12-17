@@ -5,6 +5,7 @@ import 'package:moni_pod_web/common_widgets/status_chip.dart';
 import 'package:moni_pod_web/features/home/presentation/base_screen.dart';
 
 import '../../../common_widgets/custom_drop_down.dart';
+import '../../../common_widgets/select_status_chip.dart';
 import '../../../config/style.dart';
 import '../../manage_building/domain/unit_model.dart';
 
@@ -49,50 +50,52 @@ class _AlertScreenState extends ConsumerState<AlertScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            topTitle('System Alerts', 'Real-time notifications and events', _lastUpdatedTime, () {
-              setState(() {
-                _lastUpdatedTime = DateTime.now();
-              });
-            }),
-            const SizedBox(height: 4),
-            _buildFiltersAndCategories(),
-            const SizedBox(height: 16),
-          ],
-        ),
-        Expanded(
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 24),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: commonWhite),
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: _filteredAlerts.length,
-              itemBuilder: (context, index) {
-                final alert = _filteredAlerts[index];
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
-                  child: Container(
-                    margin: EdgeInsets.only(top: index == 0 ? 14 : 0, bottom: index == _filteredAlerts.length - 1 ? 14 : 0),
-                    child: CustomAlertItem(
-                      level: alert.level,
-                      title: alert.title,
-                      time: alert.time,
-                      message: alert.message,
-                      location: alert.location,
-                      unit: alert.unit,
-                      isNew: alert.isNew,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              topTitle('System Alerts', 'Real-time notifications and events', _lastUpdatedTime, () {
+                setState(() {
+                  _lastUpdatedTime = DateTime.now();
+                });
+              }),
+              _buildFiltersAndCategories(),
+              const SizedBox(height: 16),
+            ],
+          ),
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: commonWhite),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: _filteredAlerts.length,
+                itemBuilder: (context, index) {
+                  final alert = _filteredAlerts[index];
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
+                    child: Container(
+                      margin: EdgeInsets.only(top: index == 0 ? 14 : 0, bottom: index == _filteredAlerts.length - 1 ? 14 : 0),
+                      child: CustomAlertItem(
+                        level: alert.level,
+                        title: alert.title,
+                        time: alert.time,
+                        message: alert.message,
+                        location: alert.location,
+                        unit: alert.unit,
+                        isNew: alert.isNew,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -115,23 +118,44 @@ class _AlertScreenState extends ConsumerState<AlertScreen> {
                 },
               ),
               const Spacer(), // <--- Spacer 사용 가능
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: commonGrey2),
-                  color: commonWhite,
-                ),
-                child: Row(
-                  children: [
-                    _buildFilterButton('All', _selectedFilter == 'All'),
-                    Container(height: 24, width: 1, color: commonGrey2),
-
-                    _buildFilterButton('Critical', _selectedFilter == 'Critical'),
-                    Container(height: 24, width: 1, color: commonGrey2),
-
-                    _buildFilterButton('Warning', _selectedFilter == 'Warning'),
-                  ],
-                ),
+              Row(
+                children: [
+                  SelectStatusChip(
+                    status: 'all',
+                    isSelect: _selectedFilter == 'All',
+                    onTap: () {
+                      setState(() {
+                        _selectedFilter = 'All';
+                        _currentFilter = AlertLevel.normal;
+                        _filteredAlerts = alertList;
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  SelectStatusChip(
+                    status: 'critical',
+                    isSelect: _selectedFilter == 'Critical',
+                    onTap: () {
+                      setState(() {
+                        _selectedFilter = 'Critical';
+                        _currentFilter = AlertLevel.critical;
+                        _filteredAlerts = alertList.where((alert) => alert.level == AlertLevel.critical).toList();
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  SelectStatusChip(
+                    status: 'warning',
+                    isSelect: _selectedFilter == 'Warning',
+                    onTap: () {
+                      setState(() {
+                        _selectedFilter = 'Warning';
+                        _currentFilter = AlertLevel.warning;
+                        _filteredAlerts = alertList.where((alert) => alert.level == AlertLevel.warning).toList();
+                      });
+                    },
+                  ),
+                ],
               ),
             ],
           );
@@ -149,22 +173,44 @@ class _AlertScreenState extends ConsumerState<AlertScreen> {
                   });
                 },
               ), // 좁은 화면에서는 Spacer 대신 다음 줄로 넘어감
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: commonGrey2),
-                  color: commonWhite,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildFilterButton('All', _selectedFilter == 'All'),
-                    Container(height: 24, width: 1, color: commonGrey2),
-                    _buildFilterButton('Critical', _selectedFilter == 'Critical'),
-                    Container(height: 24, width: 1, color: commonGrey2),
-                    _buildFilterButton('Warning', _selectedFilter == 'Warning'),
-                  ],
-                ),
+              Row(
+                children: [
+                  SelectStatusChip(
+                    status: 'all',
+                    isSelect: _selectedFilter == 'All',
+                    onTap: () {
+                      setState(() {
+                        _selectedFilter = 'All';
+                        _currentFilter = AlertLevel.normal;
+                        _filteredAlerts = alertList;
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  SelectStatusChip(
+                    status: 'critical',
+                    isSelect: _selectedFilter == 'Critical',
+                    onTap: () {
+                      setState(() {
+                        _selectedFilter = 'Critical';
+                        _currentFilter = AlertLevel.critical;
+                        _filteredAlerts = alertList.where((alert) => alert.level == AlertLevel.critical).toList();
+                      });
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  SelectStatusChip(
+                    status: 'warning',
+                    isSelect: _selectedFilter == 'Warning',
+                    onTap: () {
+                      setState(() {
+                        _selectedFilter = 'Warning';
+                        _currentFilter = AlertLevel.warning;
+                        _filteredAlerts = alertList.where((alert) => alert.level == AlertLevel.warning).toList();
+                      });
+                    },
+                  ),
+                ],
               ),
             ],
           );
@@ -241,33 +287,13 @@ class CustomAlertItem extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          height: 84,
-          width: 8,
-          color:
-              levelText == 'critical'
-                  ? Colors.red
-                  : levelText == 'warning'
-                  ? themeYellow
-                  : pointGreen,
-        ),
+        Container(height: 84, width: 8, color: isNew ? newBlue : commonGrey3),
         const SizedBox(width: 24),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  if (isNew)
-                    Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: newBlue, borderRadius: BorderRadius.circular(4)),
-                      child: Text('NEW', style: captionTitle(commonWhite)),
-                    ),
-                  StatusChip(status: levelText),
-                ],
-              ),
+              StatusChip(status: levelText),
               const SizedBox(height: 10),
               Text(message, style: titleSmall(commonBlack)),
               const SizedBox(height: 10),

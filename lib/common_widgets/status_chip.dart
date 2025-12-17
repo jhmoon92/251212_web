@@ -17,15 +17,16 @@ class _StatusChipState extends State<StatusChip> {
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-
         color:
-            widget.status == "offline"
+            widget.status == "total"
+                ? commonBlack
+                : widget.status == "offline"
                 ? commonGrey6
                 : widget.status == "critical"
-                ? Colors.red
+                ? warningRed
                 : widget.status == "warning"
                 ? themeYellow
-                : themeGreen,
+                : successGreen,
       ),
       child: Text(widget.status.toUpperCase(), style: captionTitle(commonWhite)),
     );

@@ -8,7 +8,6 @@ import 'package:moni_pod_web/router.dart';
 
 import '../../../common_widgets/button.dart';
 import '../../../common_widgets/input_box.dart';
-import '../../../common_widgets/input_box_filter.dart';
 import '../../home/presentation/base_screen.dart';
 import '../../manage_building/presentation/add_building_dialog.dart';
 import '../domain/unit_model.dart';
@@ -29,23 +28,22 @@ class _ManageBuildingScreenState extends ConsumerState<ManageBuildingScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          topTitle('Managed Buildings', 'Monitor and manage your properties',_lastUpdatedTime, () {
+          topTitle('Managed Buildings', 'Monitor and manage your properties', _lastUpdatedTime, () {
             setState(() {
               _lastUpdatedTime = DateTime.now();
             });
           }),
-          const SizedBox(height: 16),
 
           LayoutBuilder(
             builder: (context, constraints) {
               final double screenWidth = constraints.maxWidth;
               const double threshold = 900;
               final Widget inputBox = ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
+                constraints: const BoxConstraints(maxWidth: 408),
                 child: InputBox(
                   controller: controller,
                   label: 'Search building',
@@ -75,9 +73,9 @@ class _ManageBuildingScreenState extends ConsumerState<ManageBuildingScreen> {
               final Widget searchButton = InkWell(
                 onTap: () {},
                 child: Container(
-                  height: 48,
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  decoration: BoxDecoration(color: themeYellow, borderRadius: BorderRadius.circular(8)),
+                  height: 40,
+                  width: 116,
+                  decoration: BoxDecoration(color: themeYellow, borderRadius: BorderRadius.circular(4)),
                   alignment: Alignment.center,
                   child: Text('Search', style: bodyTitle(commonWhite)),
                 ),
@@ -89,7 +87,7 @@ class _ManageBuildingScreenState extends ConsumerState<ManageBuildingScreen> {
                 return Row(
                   children: [
                     inputBox,
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     searchButton,
                     const Expanded(child: SizedBox()),
                     const SizedBox(width: 12),
@@ -116,14 +114,14 @@ class _ManageBuildingScreenState extends ConsumerState<ManageBuildingScreen> {
             },
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
 
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
                 const double breakpointLarge = 1100.0; // 3분할 -> 2분할 전환점
                 const double breakpointMedium = 800.0; // 2분할 -> 1분할 전환점
-                const double spacing = 16.0;
+                const double spacing = 24.0;
                 final double screenWidth = constraints.maxWidth;
                 int crossAxisCount;
                 if (screenWidth >= breakpointLarge) {
@@ -148,7 +146,7 @@ class _ManageBuildingScreenState extends ConsumerState<ManageBuildingScreen> {
                               onTap: () {
                                 context.pushNamed(AppRoute.buildingDetail.name, pathParameters: {'buildingId': data.id});
                               },
-                              child: SizedBox(height: 360, width: itemWidth, child: BuildingCard(building: data)),
+                              child: Container(height: 338, width: itemWidth, child: BuildingCard(building: data)),
                             );
                           }).toList(),
                     ),
@@ -177,51 +175,116 @@ class _BuildingCardState extends ConsumerState<BuildingCard> {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = widget.building.hasAlert ? Colors.red : Colors.grey.shade300;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor, width: widget.building.hasAlert ? 2 : 1),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [BoxShadow(color: commonBlack.withOpacity(0.25), offset: const Offset(0, 4), blurRadius: 4, spreadRadius: 0)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
             children: [
-              Container(
-                height: 150,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: commonGrey3,
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-                ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(15.0), topRight: Radius.circular(15.0)),
-                  child: Image.asset("assets/images/img_bg_building2.JPG", fit: BoxFit.cover),
-                ),
-                // child: Center(child: Icon(Icons.apartment, color: Colors.white.withOpacity(0.5), size: 160)),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      _isOverlayVisible = !_isOverlayVisible;
-                    });
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(4),
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: commonWhite),
-                    child: const Icon(Icons.more_vert, size: 24, color: commonGrey7),
+              Column(
+                children: [
+                  Container(
+                    height: 72,
+                    alignment: Alignment.centerLeft,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color:
+                          widget.building.hasAlert
+                              ? warningRedBg2
+                              : widget.building.warningUnit != 0
+                              ? cautionYellowBg2
+                              : successGreenBg2,
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 24),
+                        Expanded(child: Text(widget.building.name, style: headLineSmall(commonBlack), overflow: TextOverflow.ellipsis)),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              _isOverlayVisible = !_isOverlayVisible;
+                            });
+                          },
+                          child: const Icon(Icons.more_vert, size: 24, color: commonGrey7),
+                        ),
+                        const SizedBox(width: 24),
+                      ],
+                    ),
                   ),
-                ),
+                  SizedBox(
+                    height: 160,
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 24),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/ic_24_location.svg',
+                                    colorFilter: ColorFilter.mode(commonGrey6, BlendMode.srcIn),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 3),
+                                      child: Text(
+                                        widget.building.address,
+                                        style: bodyCommon(commonGrey6),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/images/ic_24_person.svg',
+                                    colorFilter: ColorFilter.mode(commonGrey6, BlendMode.srcIn),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 3),
+                                      child: Text(
+                                        widget.building.manager,
+                                        style: bodyCommon(commonGrey6),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 3,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        Image.asset("assets/images/img_default_building.png", height: 160, fit: BoxFit.fitHeight),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               _isOverlayVisible
                   ? Positioned(
-                    top: 46,
-                    right: 8,
+                    top: 60,
+                    right: 20,
                     child: Container(
                       height: 90,
                       width: 100,
@@ -275,111 +338,49 @@ class _BuildingCardState extends ConsumerState<BuildingCard> {
                   : Container(),
             ],
           ),
+          Container(height: 1, color: commonGrey3),
           Container(
-            padding: const EdgeInsets.all(20.0),
-            height: 136,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
+            height: 103,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
+              color: commonWhite,
+            ),
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(child: Text(widget.building.name, style: headLineSmall(commonBlack), overflow: TextOverflow.ellipsis)),
-                    StatusChip(status: 'critical'),
-                  ],
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      StatusChip(status: 'total'),
+                      const SizedBox(height: 12),
+                      Text(widget.building.totalUnit.toString(), style: bodyTitle(commonBlack)),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 20, color: commonGrey6),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(widget.building.address, style: bodyPoint(commonGrey6), overflow: TextOverflow.ellipsis, maxLines: 1),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      StatusChip(status: 'critical'),
+                      const SizedBox(height: 12),
+                      Text(widget.building.criticalUnit.toString(), style: titleSmall(Colors.red)),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    // SvgPicture.asset('assets/images/ic_24_office.svg', colorFilter: ColorFilter.mode(commonGrey6, BlendMode.srcIn)),
-                    Icon(Icons.manage_accounts, size: 20, color: commonGrey6),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(widget.building.manager, style: bodyPoint(commonGrey6), overflow: TextOverflow.ellipsis, maxLines: 1),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      StatusChip(status: 'warning'),
+                      const SizedBox(height: 12),
+                      Text(widget.building.warningUnit.toString(), style: titleSmall(themeYellow)),
+                    ],
+                  ),
                 ),
               ],
-            ),
-          ),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
-                color: commonGrey1,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('TOTAL', style: captionPoint(commonBlack)),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-
-                          children: [
-                            SvgPicture.asset("assets/images/ic_24_office.svg", width: 16, fit: BoxFit.fitWidth),
-                            const SizedBox(width: 1),
-
-                            Text(widget.building.totalUnit.toString(), style: bodyTitle(commonBlack)),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(width: 1, height: 24, color: commonGrey5),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('CRITICAL', style: captionPoint(Colors.red)),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset("assets/images/ic_32_critical.svg", width: 24, fit: BoxFit.fitWidth),
-                            Text(widget.building.criticalUnit.toString(), style: titleSmall(Colors.red)),
-                            const SizedBox(width: 12),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(width: 1, height: 24, color: commonGrey5),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('WARNING', style: captionPoint(themeYellow)),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset("assets/images/ic_32_warning.svg", width: 24, fit: BoxFit.fitWidth),
-                            Text(widget.building.warningUnit.toString(), style: titleSmall(themeYellow)),
-                            const SizedBox(width: 12),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],

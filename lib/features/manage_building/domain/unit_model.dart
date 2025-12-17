@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../common/util/util.dart';
 import '../../../config/style.dart';
+import '../../admin_member/presentation/admin_members_screen.dart';
 import '../../alert/presentation/alert_screen.dart';
 
 class Building {
@@ -180,6 +181,73 @@ class Installer {
   Installer(this.name, this.id);
 }
 
+final List<MemberCardData> members = [
+  // 1. 최고 관리자 (Supervisor)
+  MemberCardData(
+    name: 'Tanaka',
+    role: 'MASTER',
+    isActive: true,
+    accountEmail: 'tanaka.sup@monipod.jp',
+    phoneNumber: '+81-3-1234-5678',
+    assignedRegion: 'Global Access', // 전역 관리자
+  ),
+  // 2. 간토 지역 관리자 (Manager, Active)
+  MemberCardData(
+    name: 'Sato',
+    role: 'SUBMASTER (MANAGER)',
+    isActive: true,
+    accountEmail: 'sato.mngr@monipod.jp',
+    phoneNumber: '+81-3-2345-6789',
+    assignedRegion: 'Kanto (Tokyo)', // 관동 지방 (도쿄)
+  ),
+  // 3. 간사이 지역 설치 기술자 (Installer, Active)
+  MemberCardData(
+    name: 'Kato',
+    role: 'SUBMASTER (INSTALLER)',
+    isActive: true,
+    accountEmail: 'kato.inst@monipod.jp',
+    phoneNumber: '+81-6-3456-7890',
+    assignedRegion: 'Kansai (Osaka)', // 관서 지방 (오사카)
+  ),
+  // 4. 비활성화된 계정 (Inactive, Manager) - 홋카이도
+  MemberCardData(
+    name: 'Yamada',
+    role: 'SUBMASTER (MANAGER)',
+    isActive: false, // 🚨 비활성화 상태
+    accountEmail: 'yamada.off@monipod.jp',
+    phoneNumber: '+81-11-4567-8901',
+    assignedRegion: 'Hokkaido', // 홋카이도
+  ),
+  // 5. 주부 지역 신규 설치 기술자 (New Installer) - 나고야
+  MemberCardData(
+    name: 'Suzuki',
+    role: 'SUBMASTER (INSTALLER)',
+    isActive: true,
+    accountEmail: 'suzuki.new@monipod.jp',
+    phoneNumber: '+81-52-5678-9012',
+    assignedRegion: 'Chubu (Nagoya)', // 중부 지방 (나고야)
+  ),
+  // 6. 규슈 지역 예비 관리자 (Reserve Manager) - 후쿠오카
+  MemberCardData(
+    name: 'Takahashi',
+    role: 'SUBMASTER (MANAGER)',
+    isActive: false,
+    accountEmail: 'takahashi.res@monipod.jp',
+    phoneNumber: '+81-92-6789-0123',
+    assignedRegion: 'Kyushu (Fukuoka)', // 규슈 지방 (후쿠오카)
+  ),
+  // 7. 도호쿠 지역 기술자 (Tohoku) - 센다이
+  MemberCardData(
+    name: 'Kobayashi',
+    role: 'SUBMASTER (INSTALLER)',
+    isActive: false,
+    accountEmail: 'koba.field@monipod.jp',
+    phoneNumber: '+81-22-7890-1234',
+    assignedRegion: 'Tohoku (Sendai)', // 도호쿠 지방 (센다이)
+  ),
+];
+
+
 // 1. 일본인 설치자 10명 구성
 final List<Installer> dummyInstallers = [
   Installer('佐藤 太郎 (Sato Taro)', 'sato_t'),
@@ -285,6 +353,13 @@ final List<Unit> units1 = [
         status: 'ONLINE',
         installer: 'Fixit Tokyo',
         installationDate: DateTime(2024, 5, 1, 12, 0),
+      ),
+      InstalledDevice(
+        name: 'ベッド離床センサー',
+        serialNumber: 'JP1923A903',
+        status: 'ONLINE',
+        installer: 'Fixit Tokyo',
+        installationDate: DateTime(2024, 5, 1, 12, 30),
       ),
     ],
   ),
@@ -957,7 +1032,7 @@ final List<Unit> units3 = [
   Unit(
     id: 'B3-U03', // IDを追加
     number: '3F-C03',
-    status: 'critical',
+    status: 'normal',
     lastMotion: 1500, // 25時間前
     isAlert: true,
     resident: ResidentDetail(name: '佐野 和男 (Sano Kazuo)', born: 1938, gender: 'Male', phone: '090-7890-0003'),
@@ -1048,7 +1123,7 @@ final List<Unit> units4 = [
   Unit(
     id: 'B4-U02', // IDを追加
     number: '202B',
-    status: 'warning',
+    status: 'normal',
     lastMotion: 480, // 8時間前
     isAlert: false,
     resident: ResidentDetail(name: '加藤 茂子 (Kato Shigeko)', born: 1945, gender: 'Female', phone: '090-2222-0022'),
@@ -1061,7 +1136,7 @@ final List<Unit> units4 = [
   Unit(
     id: 'B4-U03', // IDを追加
     number: '303C',
-    status: 'critical',
+    status: 'normal',
     lastMotion: 2000, // 約 33時間前
     isAlert: true,
     resident: ResidentDetail(name: '伊藤 正夫 (Ito Masao)', born: 1935, gender: 'Male', phone: '090-3333-0033'),
@@ -1074,7 +1149,7 @@ final List<Unit> units4 = [
   Unit(
     id: 'B4-U04', // IDを追加
     number: '404D',
-    status: 'offline',
+    status: 'normal',
     lastMotion: 0,
     isConnected: false,
     isAlert: true,
@@ -1101,7 +1176,7 @@ final List<Unit> units4 = [
   Unit(
     id: 'B4-U06', // IDを追加
     number: '606F',
-    status: 'warning',
+    status: 'normal',
     lastMotion: 15, // 最近活動あり
     isAlert: true, // 活動はあるが、他のセンサーで警告発生仮定
     resident: ResidentDetail(name: '中野 豊 (Nakano Yutaka)', born: 1960, gender: 'Male', phone: '090-6666-0066'),
@@ -1119,59 +1194,6 @@ final List<Unit> units4 = [
     isAlert: false,
     resident: ResidentDetail(name: '林 洋子 (Hayashi Yoko)', born: 1930, gender: 'Female', phone: '090-7777-0077'),
     manager: ManagerDetail(name: '吉田 明 (Yoshida Akira)', account: 'yoshida_mgr', contact: '080-5000-0001'),
-    devices: [
-      // ... (devices, etc. 保持)
-    ],
-  ),
-  // 8. Offline (Younger Resident, Router Issue)
-  Unit(
-    id: 'B4-U08', // IDを追加
-    number: '808H',
-    status: 'offline',
-    lastMotion: 0,
-    isConnected: false,
-    isAlert: false, // 通信問題による切断のため初期警告ではない
-    resident: ResidentDetail(name: '佐々木 翼 (Sasaki Tsubasa)', born: 1995, gender: 'Male', phone: '090-8888-0088'),
-    manager: ManagerDetail(name: '松本 梢 (Matsumoto Kozue)', account: 'matsumoto_mgr', contact: '080-6000-0002'),
-    devices: [
-      // ... (devices, etc. 保持)
-    ],
-  ),
-  // 9. Critical (Urgent, Very Long Inactivity)
-  Unit(
-    id: 'B4-U09', // IDを追加
-    number: '909I',
-    status: 'critical',
-    lastMotion: 3000, // 50時間前
-    isAlert: true,
-    resident: ResidentDetail(name: '野村 幸子 (Nomura Sachiko)', born: 1928, gender: 'Female', phone: '090-9999-0099'),
-    manager: ManagerDetail(name: '井上 徹 (Inoue Toru)', account: 'inoue_mgr', contact: '080-7000-0003'),
-    devices: [
-      // ... (devices, etc. 保持)
-    ],
-  ),
-  // 10. Warning (Mid-range Inactivity)
-  Unit(
-    id: 'B4-U10', // IDを追加
-    number: '1010J',
-    status: 'warning',
-    lastMotion: 120, // 2時間前
-    isAlert: false,
-    resident: ResidentDetail(name: '宮本 浩 (Miyamoto Hiroshi)', born: 1955, gender: 'Male', phone: '090-0000-0100'),
-    manager: ManagerDetail(name: '高橋 恵 (Takahashi Megumi)', account: 'takahashi_mgr', contact: '080-4000-0004'),
-    devices: [
-      // ... (devices, etc. 保持)
-    ],
-  ),
-  // 11. Normal (Steady Activity)
-  Unit(
-    id: 'B4-U11', // IDを追加
-    number: '1111K',
-    status: 'normal',
-    lastMotion: 60, // 1時間前
-    isAlert: false,
-    resident: ResidentDetail(name: '山本 舞 (Yamamoto Mai)', born: 1975, gender: 'Female', phone: '090-1111-0111'),
-    manager: ManagerDetail(name: '高橋 恵 (Takahashi Megumi)', account: 'takahashi_mgr', contact: '080-4000-0004'),
     devices: [
       // ... (devices, etc. 保持)
     ],

@@ -48,7 +48,17 @@ const Color pointGreen = Color(0xFF6FD94A);
 const Color pointGreen10 = Color(0x1A6FD94A);
 const Color pointGreen50 = Color(0x806FD94A);
 const Color pointRed = Color(0xFFDC362E);
+
 const Color newBlue = Color(0xFF1678F9);
+const Color warningRed = Color(0xFFDC362E);
+const Color successGreen = Color(0xFF75CE36);
+const Color newBlueBg1 = Color(0xFFE8F2FF);
+const Color warningRedBg1 = Color(0xFFFCEBEB);
+const Color successGreenBg1 = Color(0xFFF2FBEB);
+const Color newBlueBg2 = Color(0xFFD0E4FE);
+const Color warningRedBg2 = Color(0xFFF8D7D5);
+const Color successGreenBg2 = Color(0xFFE1F0D6);
+const Color cautionYellowBg2 = Color(0xFFFBF1D3);
 
 // grayscale
 const Color commonBlack = Color(0xFF000000);

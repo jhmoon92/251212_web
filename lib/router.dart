@@ -8,7 +8,8 @@ import 'package:moni_pod_web/features/manage_building/presentation/manage_buildi
 import 'features/admin_member/presentation/admin_members_screen.dart';
 import 'features/auth/presentation/signin_screen.dart';
 import 'features/home/presentation/base_screen.dart';
-import 'features/home/presentation/home_screen.dart';
+// import 'features/home/presentation/home_screen.dart';
+import 'features/home/presentation/home_screen_column.dart';
 import 'features/manage_building/domain/unit_model.dart';
 import 'features/manage_building/presentation/building_detail_screen.dart';
 import 'features/manage_building/presentation/unit_detail_screen.dart';
@@ -123,17 +124,22 @@ final GoRouter router = GoRouter(
                     // Building ID와 Unit ID를 이용해 Unit 객체 조회
                     final buildingId = state.pathParameters['buildingId']!;
                     final unitId = state.pathParameters['unitId']!;
-
                     final unit = findUnitById(buildingId, unitId);
+                    final building = findBuildingById(buildingId);
+
 
                     if (unit == null) {
                       return NoTransitionPage(key: state.pageKey, child: const Center(child: Text('Unit not found')));
                     }
 
+                    if (building == null) {
+                      return NoTransitionPage(key: state.pageKey, child: const Center(child: Text('Building not found')));
+                    }
+
                     return NoTransitionPage(
                       key: state.pageKey,
                       name: AppRoute.unitDetail.name,
-                      child: UnitDetailScreen(unitInfo: unit), // Unit 객체 전달
+                      child: UnitDetailScreen(unitInfo: unit, building: building), // Unit 객체 전달
                     );
                   },
                 ),

@@ -8,8 +8,11 @@ import 'package:moni_pod_web/features/manage_building/presentation/edit_unit_dia
 import 'package:moni_pod_web/features/manage_building/presentation/unit_detail_screen.dart';
 
 import '../../../common/util/util.dart';
+import '../../../common_widgets/input_box.dart';
 import '../../../config/style.dart';
+
 import '../../../router.dart';
+import '../../home/presentation/base_screen.dart';
 import '../domain/unit_model.dart';
 import 'add_unit_dialog.dart';
 
@@ -45,27 +48,26 @@ class _UnitTileState extends State<UnitTile> with SingleTickerProviderStateMixin
           children: [
             // 상단 (유닛 번호 및 Wi-Fi 아이콘)
             Container(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 18),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0), topRight: Radius.circular(8.0)),
                 color:
                     widget.unit.status == 'critical'
-                        ? Colors.red.withOpacity(0.1)
+                        ? warningRedBg2
                         : widget.unit.status == 'warning'
-                        ? Colors.yellow.withOpacity(0.1)
+                        ? cautionYellowBg2
                         : widget.unit.status == 'offline'
-                        ? commonGrey2
-                        : commonWhite,
+                        ? commonGrey3
+                        : successGreenBg2,
               ),
 
               child: Row(
                 children: [
-                  Expanded(child: Text(widget.unit.number, style: titleLarge(commonBlack), overflow: TextOverflow.ellipsis)),
+                  Expanded(child: Text(widget.unit.number, style: headLineSmall(commonBlack), overflow: TextOverflow.ellipsis)),
                   StatusChip(status: widget.unit.status),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   InkWell(
                     onTap: () {
-                      print("@");
                       setState(() {
                         _isOverlayVisible = !_isOverlayVisible;
                       });
@@ -79,51 +81,39 @@ class _UnitTileState extends State<UnitTile> with SingleTickerProviderStateMixin
                 ],
               ),
             ),
-            Container(height: 1, width: double.infinity, color: commonGrey2),
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Container(
-                        height: 24,
-                        width: 24,
-                        decoration: const BoxDecoration(shape: BoxShape.circle, color: commonGrey3),
-                        alignment: Alignment.center,
-                        child: SvgPicture.asset(
-                          "assets/images/ic_24_person.svg",
-                          width: 20,
-                          height: 20,
-                          colorFilter: const ColorFilter.mode(commonGrey6, BlendMode.srcIn),
+                      SvgPicture.asset("assets/images/ic_24_person.svg", colorFilter: const ColorFilter.mode(commonGrey6, BlendMode.srcIn)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          widget.unit.resident.name,
+                          style: bodyCommon(commonBlack),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Text(widget.unit.resident.name, style: bodyCommon(commonBlack)),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Container(
-                        height: 24,
-                        width: 24,
-                        decoration: const BoxDecoration(shape: BoxShape.circle, color: commonGrey3),
-                        alignment: Alignment.center,
-                        child: SvgPicture.asset(
-                          "assets/images/ic_24_motion.svg",
-                          width: 20,
-                          height: 20,
-                          colorFilter: const ColorFilter.mode(commonGrey6, BlendMode.srcIn),
-                        ),
-                      ),
+                      SvgPicture.asset("assets/images/ic_24_time.svg", colorFilter: const ColorFilter.mode(commonGrey6, BlendMode.srcIn)),
                       const SizedBox(width: 8),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Last Motion", style: captionPoint(commonGrey4)),
-                          Text(formatMinutesToTimeAgo(widget.unit.lastMotion), style: bodyCommon(commonBlack)),
+                          Text(
+                            "Last Motion: ${formatMinutesToTimeAgo(widget.unit.lastMotion)}",
+                            style: bodyCommon(commonBlack),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ],
                       ),
                     ],
@@ -145,7 +135,7 @@ class _UnitTileState extends State<UnitTile> with SingleTickerProviderStateMixin
                 decoration: BoxDecoration(
                   color: commonWhite,
                   borderRadius: BorderRadius.circular(8),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), spreadRadius: 1, blurRadius: 2, offset: const Offset(0, 2))]
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), spreadRadius: 1, blurRadius: 2, offset: const Offset(0, 2))],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,7 +146,7 @@ class _UnitTileState extends State<UnitTile> with SingleTickerProviderStateMixin
                           setState(() {
                             _isOverlayVisible = false;
                           });
-                          showEditUnitDialog(context,widget.unit);
+                          showEditUnitDialog(context, widget.unit);
                         },
                         child: Row(
                           children: [
@@ -205,8 +195,8 @@ class _UnitTileState extends State<UnitTile> with SingleTickerProviderStateMixin
         height: 180,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: borderColor, width: 1.5),
-          // boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
+          color: commonWhite,
+          boxShadow: [BoxShadow(color: commonBlack.withOpacity(0.25), offset: const Offset(0, 4), blurRadius: 4, spreadRadius: 0)],
         ),
         child: _buildTileContent(mainTextColor, iconColor, detailColor),
       );
@@ -225,92 +215,151 @@ class BuildingDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _BuildingDetailScreenState extends ConsumerState<BuildingDetailScreen> {
+  DateTime _lastUpdatedTime = DateTime.now();
+  TextEditingController controller = TextEditingController();
+  final ScrollController scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(Icons.arrow_back, size: 24, color: commonBlack),
-                ),
-                const SizedBox(width: 24),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(widget.building.name, style: headLineSmall(commonBlack)),
-                    const SizedBox(height: 2),
-                    Text('Unit Status Overview', style: bodyCommon(commonGrey6)),
-                  ],
-                ),
-              ],
-            ),
-            Expanded(child: Container()),
-            addButton('Add Unit', () {
-              showAddUnitDialog(context);
-            }),
-            const SizedBox(width: 16),
-          ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              topTitle('Building Details', 'Unit Status Overview', DateTime.now(), () {
+                setState(() {
+                  _lastUpdatedTime = DateTime.now();
+                });
+              }, isBackButton: true),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final double screenWidth = constraints.maxWidth;
+                  const double threshold = 900;
+                  final Widget inputBox = ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 408),
+                    child: InputBox(
+                      controller: controller,
+                      label: 'Search unit',
+                      maxLength: 32,
+                      isErrorText: true,
+                      icon: Padding(padding: const EdgeInsets.only(left: 8), child: SvgPicture.asset('assets/images/ic_16_search.svg')),
+                      onSaved: (val) {},
+                      textStyle: bodyCommon(commonBlack),
+                      textType: 'normal',
+                      validator: (value) {
+                        return null;
+                      },
+                    ),
+                    // child: InputBoxFilter(
+                    //   controller: controller,
+                    //   filterTitle: 'Filter for searching building',
+                    //   placeHolder: 'Search building',
+                    //   filters: const ['Building', 'Address', 'Manager'],
+                    //   onFilterSelected: (index) {
+                    //     setState(() {
+                    //       currentFilterIndex = index;
+                    //       selectedFilterValue = ['Building', 'Address', 'Manager'][index];
+                    //     });
+                    //   },
+                    // ),
+                  );
+                  final Widget searchButton = InkWell(
+                    onTap: () {},
+                    child: Container(
+                      height: 40,
+                      width: 116,
+                      decoration: BoxDecoration(color: themeYellow, borderRadius: BorderRadius.circular(4)),
+                      alignment: Alignment.center,
+                      child: Text('Search', style: bodyTitle(commonWhite)),
+                    ),
+                  );
+                  final Widget addButtonWidget = addButton('Add Building', () {
+                    showAddUnitDialog(context);
+                  });
+                  if (screenWidth > threshold) {
+                    return Row(
+                      children: [
+                        inputBox,
+                        const SizedBox(width: 12),
+                        searchButton,
+                        const Expanded(child: SizedBox()),
+                        const SizedBox(width: 12),
+                        addButtonWidget,
+                      ],
+                    );
+                  } else {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(flex: 14, child: inputBox),
+                            const SizedBox(width: 8),
+                            searchButton,
+                            const Expanded(child: SizedBox()),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(children: [const SizedBox(width: 12), addButtonWidget]),
+                      ],
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+              buildResponsiveBuildingCard(),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
-        buildResponsiveBuildingCard(),
-        const SizedBox(height: 16),
-        Expanded(child: Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: SingleChildScrollView(child: _buildUnitGrid()))),
+        Expanded(child: SingleChildScrollView(child: _buildUnitGrid())),
       ],
     );
   }
 
   Widget buildResponsiveBuildingCard() {
     return Container(
-      margin: const EdgeInsets.all(12),
       width: double.infinity,
       decoration: BoxDecoration(
         color: commonWhite,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: commonGrey2, width: 2),
+        border: Border.all(color: commonGrey2, width: 1),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          const double breakpoint = 700.0;
+          const double breakpoint = 900.0;
           final bool isNarrow = constraints.maxWidth < breakpoint;
-          final Widget leftSection = Container(
-            height: 120,
-            padding: const EdgeInsets.all(16),
+          final Widget leftSection = SizedBox(
+            height: 160,
             child: Row(
               crossAxisAlignment: isNarrow ? CrossAxisAlignment.start : CrossAxisAlignment.center,
               children: [
-                SvgPicture.asset('assets/images/img_80_building.svg'),
-                const SizedBox(width: 16),
+                Image.asset("assets/images/img_default_building.png", height: 160, fit: BoxFit.fitHeight),
+                const SizedBox(width: 24),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.building.name, style: headLineSmall(commonBlack), overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 4),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          SvgPicture.asset(
-                            'assets/images/ic_24_location.svg',
-                            colorFilter: const ColorFilter.mode(commonGrey5, BlendMode.srcIn),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(widget.building.address, style: bodyCommon(commonGrey6), overflow: TextOverflow.ellipsis),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 24),
+                    Text(widget.building.name, style: headLineSmall(commonBlack), overflow: TextOverflow.ellipsis, maxLines: 1),
+                    const SizedBox(height: 20),
                     Row(
                       children: [
-                        const SizedBox(width: 3),
-                        const Icon(Icons.manage_accounts, size: 20, color: commonGrey5),
-                        const SizedBox(width: 5),
-                        Text('Manager: ${widget.building.manager}', style: bodyCommon(commonGrey6)),
+                        SvgPicture.asset(
+                          'assets/images/ic_24_location.svg',
+                          colorFilter: const ColorFilter.mode(commonGrey6, BlendMode.srcIn),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(widget.building.address, style: bodyCommon(commonGrey6), overflow: TextOverflow.ellipsis, maxLines: 1),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        SvgPicture.asset('assets/images/ic_24_person.svg', colorFilter: ColorFilter.mode(commonGrey6, BlendMode.srcIn)),
+                        const SizedBox(width: 4),
+                        Text(widget.building.manager, style: bodyCommon(commonGrey6), maxLines: 1),
                       ],
                     ),
                   ],
@@ -320,12 +369,7 @@ class _BuildingDetailScreenState extends ConsumerState<BuildingDetailScreen> {
           );
 
           final Widget rightSection = Container(
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(topRight: Radius.circular(isNarrow ? 0 : 8.0), bottomRight: Radius.circular(8.0)),
-              color: commonGrey2,
-            ),
-            padding: isNarrow ? const EdgeInsets.symmetric(vertical: 8) : null,
+            decoration: BoxDecoration(borderRadius: BorderRadius.only(topRight: Radius.circular(8.0), bottomRight: Radius.circular(8.0))),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -334,45 +378,42 @@ class _BuildingDetailScreenState extends ConsumerState<BuildingDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(widget.building.totalUnit.toString(), style: headLineMedium(commonBlack)),
-                      const SizedBox(height: 6),
-                      Text('TOTAL', style: bodyTitle(commonBlack)),
+                      StatusChip(status: 'total'),
+                      const SizedBox(height: 12),
+                      Text(widget.building.totalUnit.toString(), style: titleLarge(commonBlack)),
                     ],
                   ),
                 ),
-                Container(width: 1, height: 24, color: commonGrey5),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(widget.building.activeUnit.toString(), style: headLineMedium(themeBlue)),
-                      const SizedBox(height: 6),
-                      Text('ACTIVE', style: bodyTitle(themeBlue)),
+                      StatusChip(status: 'normal'),
+                      const SizedBox(height: 12),
+                      Text(widget.building.activeUnit.toString(), style: titleLarge(successGreen)),
                     ],
                   ),
                 ),
-                Container(width: 1, height: 24, color: commonGrey5),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(widget.building.criticalUnit.toString(), style: headLineMedium(Colors.red)),
-                      const SizedBox(height: 6),
-                      Text('CRITICAL', style: bodyTitle(Colors.red)),
+                      StatusChip(status: 'critical'),
+                      const SizedBox(height: 12),
+                      Text(widget.building.criticalUnit.toString(), style: titleLarge(warningRed)),
                     ],
                   ),
                 ),
-                Container(width: 1, height: 24, color: commonGrey5),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(widget.building.warningUnit.toString(), style: headLineMedium(themeYellow)),
-                      const SizedBox(height: 6),
-                      Text('WARNING', style: bodyTitle(themeYellow)),
+                      StatusChip(status: 'warning'),
+                      const SizedBox(height: 12),
+                      Text(widget.building.warningUnit.toString(), style: titleLarge(themeYellow)),
                     ],
                   ),
                 ),
@@ -384,12 +425,17 @@ class _BuildingDetailScreenState extends ConsumerState<BuildingDetailScreen> {
             return Column(
               mainAxisSize: MainAxisSize.min, // 필요한 최소 높이만 차지
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [leftSection, Container(height: 1, width: double.infinity, color: commonGrey2), rightSection],
+              children: [
+                leftSection,
+                Container(height: 1, width: double.infinity, color: commonGrey2),
+                const SizedBox(width: 24),
+                Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: rightSection),
+              ],
             );
           } else {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [Expanded(flex: 3, child: leftSection), Expanded(flex: 2, child: rightSection)],
+              children: [Expanded(flex: 2, child: leftSection), const SizedBox(width: 24), Expanded(flex: 1, child: rightSection)],
             );
           }
         },
@@ -398,41 +444,57 @@ class _BuildingDetailScreenState extends ConsumerState<BuildingDetailScreen> {
   }
 
   Widget _buildUnitGrid() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const double minItemWidth = 400.0;
-        const double spacing = 16.0;
-        final int crossAxisCount = ((constraints.maxWidth + spacing) / (minItemWidth + spacing)).floor();
-        final int actualCrossAxisCount = crossAxisCount.clamp(1, 10);
-        final double itemWidth = (constraints.maxWidth - (actualCrossAxisCount - 1) * spacing) / actualCrossAxisCount;
-        return Padding(
-          padding: EdgeInsets.only(bottom: 20),
-          child: Wrap(
-            spacing: spacing,
-            runSpacing: spacing,
-            children:
-                widget.building.unitList.asMap().entries.map((entry) {
-                  final int index = entry.key;
-                  final unit = entry.value;
-                  return SizedBox(
-                    width: itemWidth,
-                    child: UnitTile(
-                      unit: unit,
-                      onTap: () {
-                        context.pushNamed(
-                          AppRoute.unitDetail.name,
-                          pathParameters: {
-                            'buildingId': widget.building.id.toString(), // 상위 Building ID
-                            'unitId': unit.id.toString(), // Unit ID
-                          },
-                        );
-                      },
-                    ),
-                  );
-                }).toList(),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24),
+      child: ScrollbarTheme(
+        data: ScrollbarThemeData(thumbColor: WidgetStateProperty.all(commonGrey3), trackColor: WidgetStateProperty.all(commonGrey3)),
+        child: Scrollbar(
+          controller: scrollController,
+          interactive: true,
+          thumbVisibility: true,
+          thickness: 8.0,
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                const double minItemWidth = 400.0;
+                const double spacing = 24.0;
+                final int crossAxisCount = ((constraints.maxWidth + spacing) / (minItemWidth + spacing)).floor();
+                final int actualCrossAxisCount = crossAxisCount.clamp(1, 10);
+                final double itemWidth = (constraints.maxWidth - (actualCrossAxisCount - 1) * spacing) / actualCrossAxisCount;
+                return Padding(
+                  padding: EdgeInsets.only(bottom: 20),
+                  child: Wrap(
+                    spacing: spacing,
+                    runSpacing: spacing,
+                    children:
+                        widget.building.unitList.asMap().entries.map((entry) {
+                          final int index = entry.key;
+                          final unit = entry.value;
+                          return SizedBox(
+                            height: 176,
+                            width: itemWidth,
+                            child: UnitTile(
+                              unit: unit,
+                              onTap: () {
+                                context.pushNamed(
+                                  AppRoute.unitDetail.name,
+                                  pathParameters: {
+                                    'buildingId': widget.building.id.toString(), // 상위 Building ID
+                                    'unitId': unit.id.toString(), // Unit ID
+                                  },
+                                );
+                              },
+                            ),
+                          );
+                        }).toList(),
+                  ),
+                );
+              },
+            ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

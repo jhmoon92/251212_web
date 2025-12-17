@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:moni_pod_web/features/home/presentation/base_screen.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -28,7 +27,7 @@ class _MoniPodAssetsScreenState extends ConsumerState<MoniPodAssetsScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -145,60 +144,78 @@ class _MoniPodAssetsScreenState extends ConsumerState<MoniPodAssetsScreen> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           // 버튼이 검색창 아래로 내려갈 기준 너비 설정
-          const double breakpoint = 1000.0;
+          const double breakpoint = 800.0;
           final bool isNarrow = constraints.maxWidth < breakpoint;
 
           // 버튼 그룹 위젯
           final buttonGroup = Row(
             children: [
-              // _buildActionButton('Register Device', 'assets/images/ic_24_add.svg', themeYellow, commonWhite, _handleRegisterDevice),
-              // const SizedBox(width: 8),
-              // _buildActionButton('Upload (CSV)', 'assets/images/ic_24_upload.svg', commonWhite, commonGrey6, _handleImportCsv),
-              // const SizedBox(width: 8),
-              _buildActionButton('Export CSV', 'assets/images/ic_24_download.svg', commonWhite, commonGrey6, _handleExportCsv),
+              InkWell(
+                onTap: _handleExportCsv,
+                child: Container(
+                  width: 256,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(color: themeYellow, borderRadius: BorderRadius.circular(4)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset('assets/images/ic_24_download.svg'),
+                      const SizedBox(width: 4),
+                      Text('Export CSV', style: bodyTitle(commonWhite)),
+                    ],
+                  ),
+                ),
+              ),
             ],
           );
 
           // 검색 필드 위젯
-          final searchField = SizedBox(
-            // 화면이 넓을 때는 고정 너비, 좁을 때는 Expanded(남은 공간 모두 차지)
-            width: isNarrow ? null : 380,
-            child: InputBox(
-              controller: controller,
-              placeHolder: "Search MAC, Building or Unit...",
-              maxLength: 50,
-              icon: Padding(padding: EdgeInsets.only(left: 8), child: SvgPicture.asset('assets/images/ic_16_search.svg')),
-              onSaved: (val) {},
-              textStyle: bodyCommon(commonBlack),
-              textType: 'normal',
-              validator: (value) {
-                return null;
-              },
-            ),
-
-            // TextFormField(
-            //   controller: controller,
-            //   style: bodyCommon(commonBlack),
-            //   decoration: InputDecoration(
-            //     hintText: "Search",
-            //     hintStyle: bodyCommon(commonGrey3),
-            //     border: OutlineInputBorder(
-            //       borderRadius: BorderRadius.circular(8),
-            //       borderSide: BorderSide(color: Colors.grey.shade400, width: 1.0),
-            //     ),
-            //     enabledBorder: OutlineInputBorder(
-            //       borderRadius: BorderRadius.circular(8),
-            //       borderSide: BorderSide(color: Colors.grey.shade400, width: 1.0),
-            //     ),
-            //     focusedBorder: OutlineInputBorder(
-            //       borderRadius: BorderRadius.circular(8),
-            //       // 2. 포커스 시 테마 색상 적용
-            //       borderSide: const BorderSide(color: themeYellow, width: 2.0),
-            //     ),
-            //     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            //   ),
-            //   // validator: validator,
-            // ),
+          final searchField = Row(
+            children: [
+              isNarrow
+                  ? Expanded(
+                    // 화면이 넓을 때는 고정 너비, 좁을 때는 Expanded(남은 공간 모두 차지)
+                    child: InputBox(
+                      controller: controller,
+                      placeHolder: "Search MAC, Building or Unit...",
+                      maxLength: 50,
+                      icon: Padding(padding: EdgeInsets.only(left: 8), child: SvgPicture.asset('assets/images/ic_16_search.svg')),
+                      onSaved: (val) {},
+                      textStyle: bodyCommon(commonBlack),
+                      textType: 'normal',
+                      validator: (value) {
+                        return null;
+                      },
+                    ),
+                  )
+                  : SizedBox(
+                    width: 380,
+                    child: InputBox(
+                      controller: controller,
+                      placeHolder: "Search MAC, Building or Unit...",
+                      maxLength: 50,
+                      icon: Padding(padding: EdgeInsets.only(left: 8), child: SvgPicture.asset('assets/images/ic_16_search.svg')),
+                      onSaved: (val) {},
+                      textStyle: bodyCommon(commonBlack),
+                      textType: 'normal',
+                      validator: (value) {
+                        return null;
+                      },
+                    ),
+                  ),
+              const SizedBox(width: 12),
+              InkWell(
+                onTap: () {},
+                child: Container(
+                  height: 40,
+                  width: 116,
+                  decoration: BoxDecoration(color: themeYellow, borderRadius: BorderRadius.circular(4)),
+                  alignment: Alignment.center,
+                  child: Text('Search', style: bodyTitle(commonWhite)),
+                ),
+              ),
+            ],
           );
 
           return Column(
@@ -209,21 +226,9 @@ class _MoniPodAssetsScreenState extends ConsumerState<MoniPodAssetsScreen> {
                   _lastUpdatedTime = DateTime.now();
                 });
               }),
-              const SizedBox(height: 16),
-              if (!isNarrow)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [const Spacer(), buttonGroup, const SizedBox(width: 16), searchField],
-                ),
+              if (!isNarrow) Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [searchField, const Spacer(), buttonGroup]),
               if (isNarrow)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [buttonGroup, const Spacer()]),
-                    const SizedBox(height: 16),
-                    searchField,
-                  ],
-                ),
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [searchField, const SizedBox(height: 16), buttonGroup]),
             ],
           );
         },
@@ -231,164 +236,171 @@ class _MoniPodAssetsScreenState extends ConsumerState<MoniPodAssetsScreen> {
     );
   }
 
-  // 액션 버튼 위젯
-  Widget _buildActionButton(String text, String icon, Color bgColor, Color textColor, VoidCallback onTap) {
-    bool isPrimary = bgColor == themeYellow;
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 16),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(4),
-          border: isPrimary ? null : Border.all(color: commonGrey4),
-        ),
-        child: Row(children: [SvgPicture.asset(icon), const SizedBox(width: 8), Text(text, style: bodyTitle(textColor))]),
-      ),
-    );
-  }
-
   Widget _buildDataTable() {
     const double minTableWidth = 1600.0;
 
-    return DataTable2(
-      scrollController: horizontalScrollController,
-      fixedTopRows: 1,
-      minWidth: minTableWidth,
-      headingRowColor: WidgetStateProperty.all<Color>(commonGrey1),
-      border: TableBorder(horizontalInside: BorderSide(color: commonGrey2, width: 1.0), bottom: BorderSide(color: commonGrey2, width: 1.0)),
-      columnSpacing: 30, // 열 간격 조정
-      horizontalMargin: 0,
-      headingRowHeight: 48,
-      dataRowHeight: 56, // 행 높이 조정
-      columns: [
-        DataColumn2(
-          label: Padding(padding: EdgeInsets.only(left: 24), child: Text('MAC ADDRESS', style: bodyCommon(commonGrey5))),
-          size: ColumnSize.M,
-        ),
-        DataColumn2(
-          label: Padding(padding: EdgeInsets.only(left: 16), child: Text('BUILDING', style: bodyCommon(commonGrey5))),
-          size: ColumnSize.M,
-        ),
-        DataColumn2(
-          label: Padding(padding: EdgeInsets.only(left: 16), child: Text('UNIT', style: bodyCommon(commonGrey5))),
-          size: ColumnSize.S,
-        ),
-        DataColumn2(
-          label: Padding(padding: EdgeInsets.only(left: 16), child: Text('RESIDENT', style: bodyCommon(commonGrey5))),
-          size: ColumnSize.L,
-        ),
-        DataColumn2(
-          label: Padding(padding: EdgeInsets.only(left: 16), child: Text('FIRMWARE', style: bodyCommon(commonGrey5))),
-          size: ColumnSize.S,
-        ),
-        DataColumn2(
-          label: Padding(padding: EdgeInsets.only(left: 16), child: Text('STATUS', style: bodyCommon(commonGrey5))),
-          size: ColumnSize.S,
-        ),
-        DataColumn2(
-          label: Padding(padding: EdgeInsets.only(left: 16), child: Text('INSTALLER', style: bodyCommon(commonGrey5))),
+    return Container(
+      decoration: BoxDecoration(
+        color: commonWhite, // 전체 배경 흰색
+        borderRadius: BorderRadius.circular(8), // 테두리 Radius 8
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8), // 내부 내용이 테두리를 넘지 않게 자름
+        child: DataTable2(
+          scrollController: verticalScrollController,
+          horizontalScrollController: horizontalScrollController,
+          fixedTopRows: 1,
+          minWidth: minTableWidth,
+          headingRowColor: WidgetStateProperty.all<Color>(commonWhite),
+          border: TableBorder(
+            horizontalInside: BorderSide(color: commonGrey2, width: 1.0),
+            bottom: BorderSide(color: commonGrey5, width: 1.0),
+          ),
+          columnSpacing: 30, // 열 간격 조정
+          horizontalMargin: 0,
+          headingRowHeight: 48,
+          dataRowHeight: 56, // 행 높이 조정
+          columns: [
+            DataColumn2(
+              label: Padding(padding: EdgeInsets.only(left: 24), child: Text('MAC ADDRESS', style: bodyTitle(commonBlack))),
+              size: ColumnSize.M,
+            ),
+            DataColumn2(
+              label: Padding(padding: EdgeInsets.only(left: 16), child: Text('BUILDING', style: bodyTitle(commonBlack))),
+              size: ColumnSize.M,
+            ),
+            DataColumn2(
+              label: Padding(padding: EdgeInsets.only(left: 16), child: Text('UNIT', style: bodyTitle(commonBlack))),
+              size: ColumnSize.S,
+            ),
+            DataColumn2(
+              label: Padding(padding: EdgeInsets.only(left: 16), child: Text('RESIDENT', style: bodyTitle(commonBlack))),
+              size: ColumnSize.L,
+            ),
+            DataColumn2(
+              label: Padding(padding: EdgeInsets.only(left: 16), child: Text('FIRMWARE', style: bodyTitle(commonBlack))),
+              size: ColumnSize.S,
+            ),
+            DataColumn2(
+              label: Padding(padding: EdgeInsets.only(left: 16), child: Text('STATUS', style: bodyTitle(commonBlack))),
+              size: ColumnSize.S,
+            ),
+            DataColumn2(
+              label: Padding(padding: EdgeInsets.only(left: 16), child: Text('INSTALLER', style: bodyTitle(commonBlack))),
 
-          size: ColumnSize.M,
-        ),
-        DataColumn2(
-          label: Padding(padding: EdgeInsets.only(left: 16), child: Text('REG.DATE', style: bodyCommon(commonGrey5))),
-          size: ColumnSize.L,
-        ),
-      ],
-      rows:
-          allGlobalDevicesList
-              .map(
-                (device) => DataRow(
-                  cells: [
-                    DataCell(
-                      Padding(
-                        padding: EdgeInsets.only(left: 24),
-                        child: Text(device.serialNumber, style: bodyCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ),
-                    ),
-                    DataCell(
-                      Padding(
-                        padding: EdgeInsets.only(left: 16),
-                        child: Text(device.buildingName, style: bodyCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ),
-                    ),
-                    DataCell(
-                      Padding(
-                        padding: EdgeInsets.only(left: 16),
-                        child: Text(device.unitNumber, style: bodyCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ),
-                    ),
-                    DataCell(
-                      Padding(
-                        padding: EdgeInsets.only(left: 16),
-                        child: Row(
-                          children: [
-                            SvgPicture.asset('assets/images/ic_24_person.svg', colorFilter: ColorFilter.mode(commonGrey5, BlendMode.srcIn)),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                device.residentName,
-                                style: bodyCommon(commonBlack),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+              size: ColumnSize.M,
+            ),
+            DataColumn2(
+              label: Padding(padding: EdgeInsets.only(left: 16), child: Text('REG.DATE', style: bodyTitle(commonBlack))),
+              size: ColumnSize.L,
+            ),
+          ],
+          rows:
+              allGlobalDevicesList
+                  .map(
+                    (device) => DataRow(
+                      cells: [
+                        DataCell(
+                          Padding(
+                            padding: EdgeInsets.only(left: 24),
+                            child: Text(device.serialNumber, style: bodyCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ),
+                        ),
+                        DataCell(
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(device.buildingName, style: bodyCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ),
+                        ),
+                        DataCell(
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(device.unitNumber, style: bodyCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ),
+                        ),
+                        DataCell(
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/images/ic_24_person.svg',
+                                  colorFilter: ColorFilter.mode(commonBlack, BlendMode.srcIn),
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    device.residentName,
+                                    style: bodyCommon(commonBlack),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text('v1.2.0', style: bodyCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ),
+                        ),
+                        DataCell(
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Container(
+                              height: 24,
+                              width: 78,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: device.status == 'ONLINE' ? successGreenBg1 : commonGrey2,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    height: 6,
+                                    width: 6,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: device.status == 'ONLINE' ? successGreen : commonGrey6,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    device.status == 'ONLINE' ? 'Online' : 'Offline',
+                                    style: captionPoint(device.status == 'ONLINE' ? successGreen : commonGrey6),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Padding(
-                        padding: EdgeInsets.only(left: 16),
-                        child: Text('v1.2.0', style: bodyCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ),
-                    ),
-                    DataCell(
-                      Padding(
-                        padding: EdgeInsets.only(left: 16),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: device.status == 'ONLINE' ? themeGreen.withOpacity(0.1) : themeRed.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            device.status == 'ONLINE' ? 'Online' : 'Offline',
-                            style: bodyCommon(device.status == 'ONLINE' ? themeGreen : themeRed),
                           ),
                         ),
-                      ),
-                    ),
-                    DataCell(
-                      Padding(
-                        padding: EdgeInsets.only(left: 16),
-                        child: Row(
-                          children: [
-                            Icon(Icons.manage_accounts, size: 20, color: commonGrey5),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(device.installer, style: bodyCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        DataCell(
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(device.installer, style: bodyCommon(commonBlack), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ),
+                        ),
+                        DataCell(
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              DateFormat('yyyy.MM.dd. HH:mm').format(device.installationDate),
+                              style: bodyCommon(commonGrey6),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                    DataCell(
-                      Padding(
-                        padding: EdgeInsets.only(left: 16),
-                        child: Text(
-                          DateFormat('yyyy.MM.dd. HH:mm').format(device.installationDate),
-                          style: bodyCommon(commonGrey4),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-              .toList(),
+                  )
+                  .toList(),
+        ),
+      ),
     );
   }
 }

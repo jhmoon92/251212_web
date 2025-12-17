@@ -58,9 +58,11 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
         ),
         title: Row(
           children: [
-            SvgPicture.asset("assets/images/Moni_top_logo_signiture.svg"),
+            SvgPicture.asset("assets/images/img_logo_s_moni_resipass.svg"),
             const SizedBox(width: 8),
-            Text("MSMS (Moni Service Monitoring System)", style: captionCommon(commonGrey4)),
+            Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text("Moni Residence Pass Management System", style: captionCommon(commonGrey3))),
           ],
         ),
         backgroundColor: commonGrey7,
@@ -102,7 +104,7 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
 
                         // 2. 최하단 Manager 프로필 영역
                         Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                          padding: const EdgeInsets.fromLTRB(24, 16, 16, 16),
                           child: Row(
                             children: [
                               // 2-1. 이미지
@@ -116,14 +118,16 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                                   height: 24,
                                   width: 24,
                                   // margin: EdgeInsets.only(left: _isExpanded ? 8 : 9),
-                                  decoration: const BoxDecoration(shape: BoxShape.circle, color: commonGrey5),
+                                  decoration: const BoxDecoration(shape: BoxShape.circle, color: themeYellow),
                                   alignment: Alignment.center,
-                                  child: SvgPicture.asset(
-                                    "assets/images/ic_24_person.svg",
-                                    width: 24,
-                                    height: 24,
-                                    colorFilter: const ColorFilter.mode(commonWhite, BlendMode.srcIn),
-                                  ),
+                                  child: Text("T", style: bodyTitle(commonWhite), maxLines: 1, overflow: TextOverflow.ellipsis),
+
+                                  // child: SvgPicture.asset(
+                                  //   "assets/images/ic_24_person.svg",
+                                  //   width: 24,
+                                  //   height: 24,
+                                  //   colorFilter: const ColorFilter.mode(commonWhite, BlendMode.srcIn),
+                                  // ),
                                 ),
                               ),
 
@@ -140,10 +144,11 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                                       InkWell(
                                         onTap: () {
                                           setState(() {
-                                            _viewSignOut = !_viewSignOut;
+                                            context.goNamed(AppRoute.signIn.name);
+                                            // _viewSignOut = !_viewSignOut;
                                           });
                                         },
-                                        child: const Icon(Icons.more_vert, size: 20, color: commonGrey6),
+                                        child: SvgPicture.asset("assets/images/ic_24_logout.svg"),
                                       ),
                                     ],
                                   ),
@@ -155,27 +160,27 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                       ],
                     ),
                   ),
-                  _viewSignOut
-                      ? Positioned(
-                        bottom: 44,
-                        right: 20,
-                        child: InkWell(
-                          onTap: () {
-                            context.goNamed(AppRoute.signIn.name);
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(color: commonGrey2, borderRadius: BorderRadius.circular(8)),
-                            child: Text("Sign Out", style: bodyTitle(commonGrey7), maxLines: 1, overflow: TextOverflow.ellipsis),
-                          ),
-                        ),
-                      )
-                      : Container(),
+                  // _viewSignOut
+                  //     ? Positioned(
+                  //       bottom: 44,
+                  //       right: 20,
+                  //       child: InkWell(
+                  //         onTap: () {
+                  //           context.goNamed(AppRoute.signIn.name);
+                  //         },
+                  //         child: Container(
+                  //           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  //           decoration: BoxDecoration(color: commonGrey2, borderRadius: BorderRadius.circular(8)),
+                  //           child: Text("Sign Out", style: bodyTitle(commonGrey7), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  //         ),
+                  //       ),
+                  //     )
+                  //     : Container(),
                 ],
               ),
             ),
           ),
-          Expanded(child: Container(color: commonGrey2, padding: EdgeInsets.only(left: 24, right: 24, top: 24), child: widget.child)),
+          Expanded(child: Container(color: commonGrey1, padding: EdgeInsets.only(top: 24), child: widget.child)),
 
           // Expanded(child: Padding(padding: EdgeInsets.all(16), child: selectMenu == 0 ? topTitle('Dashboard') : selectMenu == 1 ? ManageBuildingScreen() : AssetManagementScreen())),
         ],
@@ -228,7 +233,7 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                       ? Positioned(
                         top: 0,
                         right: 0,
-                        child: Container(width: 8, height: 8, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red)),
+                        child: Container(width: 8, height: 8, decoration: BoxDecoration(shape: BoxShape.circle, color: newBlue)),
                       )
                       : Container(),
                 ],
@@ -254,7 +259,7 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
                     height: 24,
                     margin: const EdgeInsets.only(left: 70),
                     alignment: Alignment.center,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: newBlue),
                     child: Text(
                       alertList.where((alert) => alert.isNew).length.toString(),
                       style: captionTitle(commonWhite),
@@ -271,7 +276,7 @@ class _BaseScreenState extends ConsumerState<BaseScreen> {
   }
 }
 
-Widget topTitle(String title, String? subtitle, DateTime lastUpdatedTime, VoidCallback onReload) {
+Widget topTitle(String title, String? subtitle, DateTime lastUpdatedTime, VoidCallback onReload, {bool isBackButton = false}) {
   return LayoutBuilder(
     builder: (context, constraints) {
       final bool hideUpdateText = constraints.maxWidth < 600;
@@ -282,6 +287,20 @@ Widget topTitle(String title, String? subtitle, DateTime lastUpdatedTime, VoidCa
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              isBackButton
+                  ? InkWell(
+                    onTap: () {
+                      context.pop();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24, right: 12),
+                      child: SvgPicture.asset(
+                        'assets/images/ic_24_previous.svg',
+                        colorFilter: const ColorFilter.mode(commonBlack, BlendMode.srcIn),
+                      ),
+                    ),
+                  )
+                  : Container(),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -311,7 +330,7 @@ Widget topTitle(String title, String? subtitle, DateTime lastUpdatedTime, VoidCa
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
         ],
       );
     },

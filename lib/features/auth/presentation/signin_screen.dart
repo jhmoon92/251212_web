@@ -36,8 +36,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with EmailAndPasswo
 
   @override
   void initState() {
-    _emailController.text = "jhmoon@humax-networks.com";
-    _passwordController.text = "\$8289501";
+    // _emailController.text = "jhmoon@humax-networks.com";
+    // _passwordController.text = "\$8289501";
     super.initState();
   }
 
@@ -58,7 +58,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with EmailAndPasswo
     });
     return true;
 
-
     // if (_emailError == null && _passwordError == null) {
     //   bool isSuccess = await ref.read(authRepositoryProvider).signIn(_emailController.text, _passwordController.text);
     //
@@ -77,15 +76,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with EmailAndPasswo
       appBar: AppBar(
         title: Row(
           children: [
-            SvgPicture.asset("assets/images/Moni_top_logo_signiture.svg"),
+            SvgPicture.asset("assets/images/img_logo_s_moni_resipass.svg"),
             const SizedBox(width: 8),
-            Text("MSMS (Moni Service Monitoring System)", style: captionCommon(commonGrey4)),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Text("Moni Residence Pass Management System", style: captionCommon(commonGrey3)),
+            ),
           ],
         ),
         backgroundColor: commonGrey7,
         // actions: [Padding(padding: const EdgeInsets.only(right: 16), child: Icon(Icons.notifications_none, color: Colors.white))],
       ),
-      body: LayoutBuilder(builder: (context, constraint) {
+      body: LayoutBuilder(
+        builder: (context, constraint) {
           return GestureDetector(
             onTap: () {
               _focusNode.unfocus();
@@ -96,26 +99,22 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with EmailAndPasswo
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SvgPicture.asset("assets/images/Moni_logo_signiture.svg"),
-                  const SizedBox(height: 16),
-                  Text("Humax_Networks | MSMS", style: titleLarge(commonGrey7)),
+                  SvgPicture.asset("assets/images/img_logo_moni_resipass.svg"),
                   const SizedBox(height: 48),
                   Center(
-                    child: Container(
-                      width: 400,
-                      padding: EdgeInsets.all(24),
-                      decoration: BoxDecoration(border: Border.all(color: commonGrey3, width: 1), borderRadius: BorderRadius.circular(8)),
+                    child: SizedBox(
+                      width: 384,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("Email address", style: bodyCommon(commonGrey6)),
+                          Text("E-mail ", style: titleCommon(commonBlack)),
                           const SizedBox(height: 8),
                           InputBox(
                             controller: _emailController,
                             focus: _emailFocus,
                             textType: "email",
-                            label: "Email address",
+                            label: "Enter your email",
                             // initialText: "hjkang1@humax-networks.com",
                             // initialText: "jylee7@humax-networks.com",
                             // initialText: "mon5315@hanmail.net",
@@ -170,14 +169,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with EmailAndPasswo
                           //   ),
                           // ),
                           const SizedBox(height: 24),
-                          Text("Password", style: bodyCommon(commonGrey6)),
+                          Text("Password", style: titleCommon(commonBlack)),
                           const SizedBox(height: 8),
 
                           InputBox(
                             controller: _passwordController,
                             focus: _passwordFocus,
                             textType: "password",
-                            label: "Password",
+                            label: "Enter your password",
                             // initialText: "a359738359738!",
                             // initialText: "#52471292",
                             // initialText: "!27106915",
@@ -227,7 +226,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with EmailAndPasswo
                           //     suffixIcon: const Icon(Icons.visibility_off, color: Colors.black54), // 아이콘 색상도 조절 (선택 사항)
                           //   ),
                           // ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 48),
                           // CheckboxListTile(
                           //   value: _termsAccepted,
                           //   contentPadding: EdgeInsets.zero,
@@ -249,8 +248,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with EmailAndPasswo
                           //     });
                           //   },
                           // ),
-                          const SizedBox(height: 24),
-                          Button(label: 'Sign in', onClick: (){context.go(AppRoute.home.path);}, backgroundColor: themeYellow),
+                          Button(
+                            label: 'Sign in',
+                            onClick: () {
+                              context.go(AppRoute.home.path);
+                            },
+                            backgroundColor: themeYellow,
+                          ),
                         ],
                       ),
                     ),
@@ -259,7 +263,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with EmailAndPasswo
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
