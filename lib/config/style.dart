@@ -58,6 +58,7 @@ const Color successGreenBg1 = Color(0xFFF2FBEB);
 const Color newBlueBg2 = Color(0xFFD0E4FE);
 const Color warningRedBg2 = Color(0xFFF8D7D5);
 const Color successGreenBg2 = Color(0xFFE1F0D6);
+const Color cautionYellowBg1 = Color(0xFFFDF8E9);
 const Color cautionYellowBg2 = Color(0xFFFBF1D3);
 
 // grayscale

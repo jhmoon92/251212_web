@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
@@ -23,7 +24,7 @@ class Manager {
 }
 
 void showAddBuildingDialog(BuildContext context) {
-  showCustomDialog(context: context, title: 'Add Building', content: const SizedBox(width: 500, height: 760, child: AddBuildingDialog()));
+  showCustomDialog(context: context, title: 'Add Building', content: const SizedBox(width: 680, height: 700, child: AddBuildingDialog()));
 
   // showCustomDialog(context: context, title: 'Add Building', content: AddBuildingDialog());
 }
@@ -54,7 +55,7 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
 
   List<String> _unitSet = [];
 
-  List<Manager> _managers = [
+  final List<Manager> _managers = [
     Manager(name: 'Yamada Taro (Master)', id: 'taro_admin', isMaster: true),
     Manager(name: 'Tanaka Kenji', id: 'tanaka_k'),
     Manager(name: 'Sato Haruka', id: 'sato_h'),
@@ -228,7 +229,7 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
           stepper(context),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20), // 좌우 패딩만 유지
+              padding: const EdgeInsets.symmetric(horizontal: 24), // 좌우 패딩만 유지
               child: TabBarView(
                 physics: const NeverScrollableScrollPhysics(),
                 controller: _tabController,
@@ -238,10 +239,15 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const SizedBox(height: 24),
+                          Text('Basic Info', style: bodyCommon(commonGrey5)),
+                          const SizedBox(height: 24),
                           _buildImageUploader(),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 28),
                           _buildAddressInput(),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 28),
+                          _buildRegion(),
+                          const SizedBox(height: 28),
                           inputText(
                             'Building Name',
                             'e.g.Sunrise Senior Care',
@@ -249,7 +255,7 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
                             const Icon(Icons.person_outline, color: Colors.grey),
                             isRequired: true,
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 28),
                           _buildAssignedManagers(),
                         ],
                       ),
@@ -261,23 +267,11 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
               ),
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              // ... 기존 스타일 유지 ...
-              color: commonGrey2,
-              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('Cancel', style: bodyTitle(commonGrey4)),
-                ),
-                const SizedBox(width: 16),
                 isStep1
                     ? Container()
                     : InkWell(
@@ -294,29 +288,70 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
                         });
                       },
                       child: Container(
-                        margin: EdgeInsets.only(right: 12),
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        decoration: BoxDecoration(color: commonWhite, borderRadius: BorderRadius.circular(8)),
+                        width: 256,
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(color: commonWhite, borderRadius: BorderRadius.circular(4)),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Transform.flip(flipX: true, child: Icon(Icons.arrow_right_alt, size: 24, color: commonGrey4)),
+                            SvgPicture.asset(
+                              'assets/images/ic_24_previous.svg',
+                              colorFilter: const ColorFilter.mode(commonBlack, BlendMode.srcIn),
+                            ),
                             const SizedBox(width: 4),
-                            Text('Back', style: bodyTitle(commonGrey4)),
+                            Text('Back', style: bodyTitle(commonBlack)),
                           ],
                         ),
                       ),
                     ),
+
+                Expanded(child: SizedBox()),
                 isStep1
-                    ? addButton('Next Step', () {
-                      _controller1.forward();
-                      _tabController.animateTo(1);
-                      if (mounted) {
-                        setState(() {
-                          isStep1 = false;
-                        });
-                      }
-                    }, imageWidget: Icon(Icons.arrow_right_alt, size: 24, color: commonWhite))
-                    : addButton('Add Building', () {}),
+                    ? InkWell(
+                      onTap: () {
+                        _controller1.forward();
+                        _tabController.animateTo(1);
+                        if (mounted) {
+                          setState(() {
+                            isStep1 = false;
+                          });
+                        }
+                      },
+                      child: Container(
+                        width: 256,
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(color: themeYellow, borderRadius: BorderRadius.circular(4)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Next', style: bodyTitle(commonWhite)),
+                            const SizedBox(width: 4),
+                            Icon(Icons.arrow_right_alt, size: 24, color: commonWhite),
+                          ],
+                        ),
+                      ),
+                    )
+                    : InkWell(
+                      onTap: () {
+                        context.pop();
+                      },
+                      child: Container(
+                        width: 256,
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(color: themeYellow, borderRadius: BorderRadius.circular(4)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Add Building', style: bodyTitle(commonWhite)),
+                            const SizedBox(width: 4),
+                            Icon(Icons.arrow_right_alt, size: 24, color: commonWhite),
+                          ],
+                        ),
+                      ),
+                    ),
               ],
             ),
           ),
@@ -326,179 +361,194 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
   }
 
   Widget stepper(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                Container(height: 8, decoration: BoxDecoration(borderRadius: BorderRadius.circular(4.0), color: themeYellow)),
-                const SizedBox(height: 4),
-                Text('1. Basic Info', style: bodyTitle(isStep1 ? commonGrey7 : commonGrey3)),
-              ],
-            ),
-          ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Column(
-              children: [
-                LinearProgressIndicator(
-                  minHeight: 8,
-                  borderRadius: BorderRadius.circular(4.0),
-                  backgroundColor: commonGrey2,
-                  color: themeYellow,
-                  value: _progressbarValue1,
-                ),
-                const SizedBox(height: 4),
-                Text('2. Unit Generator', style: bodyTitle(!isStep1 ? commonGrey7 : commonGrey3)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAddressInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        RichText(
-          text: TextSpan(
-            text: 'Address Search',
-            style: bodyTitle(commonGrey7),
-            children: [TextSpan(text: ' *', style: bodyTitle(Colors.red))],
+        Expanded(child: Column(children: [Container(height: 8, decoration: BoxDecoration(color: themeYellow))])),
+        Expanded(
+          child: Column(
+            children: [LinearProgressIndicator(minHeight: 8, backgroundColor: commonGrey2, color: themeYellow, value: _progressbarValue1)],
           ),
         ),
-        const SizedBox(height: 4),
-        InputBox(
-          controller: _addressController,
-          label: 'Type to search (e.g. Seoul)...',
-          maxLength: 32,
-          isErrorText: true,
-          icon: Padding(padding: const EdgeInsets.only(left: 8), child: SvgPicture.asset('assets/images/ic_16_search.svg')),
-          onSaved: (val) {},
-          textStyle: bodyCommon(commonBlack),
-          textType: 'normal',
-          validator: (value) => value == null || value.isEmpty ? 'Please Enter Address' : null,
-          onChanged: _onAddressSearch,
-        ),
-        const SizedBox(height: 20),
-
-        RichText(text: TextSpan(text: 'Region (Auto-filled)', style: bodyTitle(commonGrey7), children: [])),
-        const SizedBox(height: 4),
-        Stack(
-          children: [
-            InputBox(
-              controller: _addressController,
-              label: 'Select address first',
-              maxLength: 32,
-              isErrorText: true,
-              onSaved: (val) {},
-              textStyle: bodyCommon(commonBlack),
-              textType: 'normal',
-              validator: (value) => value == null || value.isEmpty ? 'Please Enter Address' : null,
-              onChanged: _onAddressSearch,
-            ),
-            Container(
-              width: double.infinity,
-              height: 48,
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), color: commonGrey2.withOpacity(0.5)),
-            ),
-          ],
-        ),
-
-        // 검색 결과 목록
-        if (_addressSuggestions.isNotEmpty)
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.5), blurRadius: 4)],
-            ),
-            margin: const EdgeInsets.only(top: 8),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: _addressSuggestions.length,
-              itemBuilder: (context, index) {
-                final suggestion = _addressSuggestions[index];
-                return ListTile(
-                  // 2. 검색 제안 텍스트 색상 검은색으로 변경
-                  title: Text(suggestion, style: bodyCommon(commonBlack)),
-                  leading: const Icon(Icons.location_on, size: 20, color: themeYellow),
-                  onTap: () => _selectAddress(suggestion),
-                );
-              },
-            ),
-          ),
       ],
     );
   }
 
-  // 4. Building Image 업로드 위젯 (이미지 미리보기 기능 추가)
-  Widget _buildImageUploader() {
-    return Column(
+  Widget _buildAddressInput() {
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Building Image', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
-        const SizedBox(height: 8),
-        Container(
-          height: 120,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(8),
-            // BorderStyle.dashed를 BorderStyle.none으로 변경
-            border: Border.all(color: Colors.grey.shade300, style: BorderStyle.none),
-          ),
-          child: InkWell(
-            onTap: _pickImage, // PC 파일 탐색기 열기
-            borderRadius: BorderRadius.circular(8),
-            child: Center(
-              // 2. 이미지 미리보기 로직
-              child:
-                  _imageFileBytes != null
-                      ? Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          // 미리보기 이미지
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.memory(_imageFileBytes!, fit: BoxFit.cover, alignment: Alignment.center),
-                          ),
-                          // 파일 이름 오버레이
-                          Container(
-                            alignment: Alignment.bottomCenter,
-                            padding: const EdgeInsets.all(4.0),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [Colors.transparent, Colors.black.withOpacity(0.5)],
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _imageFileName!,
-                              style: const TextStyle(color: Colors.white, fontSize: 12),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          // 아이콘 오버레이 (선택됨 표시)
-                          Positioned(top: 8, right: 8, child: Icon(Icons.check_circle, size: 24, color: themeYellow)),
-                        ],
-                      )
-                      // 파일이 선택되지 않은 경우
-                      : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.cloud_upload, size: 30, color: Colors.grey.shade600),
-                          const SizedBox(height: 4),
-                          Text('이미지 파일을 선택하거나 드래그하세요', style: TextStyle(color: Colors.grey.shade600)),
-                        ],
-                      ),
+        Expanded(
+          flex: 24,
+          child: RichText(
+            text: TextSpan(
+              text: 'Address Search',
+              style: titleCommon(commonBlack),
+              children: [TextSpan(text: ' *', style: titleCommon(Colors.red))],
             ),
+          ),
+        ),
+        Expanded(
+          flex: 44,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InputBox(
+                controller: _addressController,
+                label: 'Type to search (e.g. Seoul)...',
+                maxLength: 32,
+                isErrorText: true,
+                icon: Padding(padding: const EdgeInsets.only(left: 8), child: SvgPicture.asset('assets/images/ic_16_search.svg')),
+                onSaved: (val) {},
+                textStyle: bodyCommon(commonBlack),
+                textType: 'normal',
+                validator: (value) => value == null || value.isEmpty ? 'Please Enter Address' : null,
+                onChanged: _onAddressSearch,
+              ),
+              // 검색 결과 목록
+              if (_addressSuggestions.isNotEmpty)
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.5), blurRadius: 4)],
+                  ),
+                  margin: const EdgeInsets.only(top: 8),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _addressSuggestions.length,
+                    itemBuilder: (context, index) {
+                      final suggestion = _addressSuggestions[index];
+                      return ListTile(
+                        // 2. 검색 제안 텍스트 색상 검은색으로 변경
+                        title: Text(suggestion, style: bodyCommon(commonBlack)),
+                        leading: const Icon(Icons.location_on, size: 20, color: themeYellow),
+                        onTap: () => _selectAddress(suggestion),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRegion() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 24,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [Text('Region', style: titleCommon(commonBlack)), Text('(Auto-Filled)', style: bodyCommon(commonGrey5))],
+          ),
+        ),
+        Expanded(
+          flex: 44,
+          child: Stack(
+            children: [
+              InputBox(
+                controller: _addressController,
+                label: 'Select address first',
+                maxLength: 32,
+                isErrorText: true,
+                onSaved: (val) {},
+                textStyle: bodyCommon(commonBlack),
+                textType: 'normal',
+                icon: Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: SvgPicture.asset(
+                    'assets/images/ic_24_location.svg',
+                    width: 16,
+                    fit: BoxFit.fitWidth,
+                    colorFilter: ColorFilter.mode(commonGrey5, BlendMode.srcIn),
+                  ),
+                ),
+                validator: (value) => value == null || value.isEmpty ? 'Please Enter Address' : null,
+                onChanged: _onAddressSearch,
+              ),
+              Container(
+                width: double.infinity,
+                height: 42,
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), color: commonGrey2.withOpacity(0.5)),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImageUploader() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 24, child: Text('Building Image', style: titleCommon(commonBlack))),
+        Expanded(
+          flex: 44,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 120,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                  // BorderStyle.dashed를 BorderStyle.none으로 변경
+                  border: Border.all(color: Colors.grey.shade300, style: BorderStyle.none),
+                ),
+                child: InkWell(
+                  onTap: _pickImage, // PC 파일 탐색기 열기
+                  borderRadius: BorderRadius.circular(8),
+                  child: Center(
+                    // 2. 이미지 미리보기 로직
+                    child:
+                        _imageFileBytes != null
+                            ? Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                // 미리보기 이미지
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.memory(_imageFileBytes!, fit: BoxFit.cover, alignment: Alignment.center),
+                                ),
+                                // 파일 이름 오버레이
+                                Container(
+                                  alignment: Alignment.bottomCenter,
+                                  padding: const EdgeInsets.all(4.0),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [Colors.transparent, Colors.black.withOpacity(0.5)],
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    _imageFileName!,
+                                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                // 아이콘 오버레이 (선택됨 표시)
+                                Positioned(top: 8, right: 8, child: Icon(Icons.check_circle, size: 24, color: themeYellow)),
+                              ],
+                            )
+                            // 파일이 선택되지 않은 경우
+                            : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset("assets/images/ic_24_upload.svg"),
+                                const SizedBox(height: 12),
+                                Text('Select an image file or drag and drop it.', style: bodyCommon(commonGrey6)),
+                              ],
+                            ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -507,54 +557,65 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
 
   // 5. Assigned Managers 위젯
   Widget _buildAssignedManagers() {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Assigned Managers', style: bodyTitle(commonGrey7)),
-        const SizedBox(height: 6),
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 150.0),
-          child: Container(
-            decoration: BoxDecoration(border: Border.all(color: commonGrey4), borderRadius: BorderRadius.circular(8)),
-            child: ScrollbarTheme(
-              data: ScrollbarThemeData(
-                thumbColor: WidgetStateProperty.all(commonGrey3),
-                trackColor: WidgetStateProperty.all(Colors.grey.shade300),
-              ),
-              child: Scrollbar(
-                controller: _scrollController,
-                interactive: true,
-                thumbVisibility: true,
-                thickness: 8.0,
-                child: ListView.builder(
-                  controller: _scrollController,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  itemCount: _managers.length,
-                  itemBuilder: (context, index) {
-                    final manager = _managers[index];
-                    final isChecked = _selectedManagers[manager.id] ?? false;
-                    final isDisabled = manager.isMaster; // Master Admin은 선택 해제 불가
+        Expanded(flex: 24, child: Text('Assigned Managers', style: titleCommon(commonBlack))),
+        Expanded(
+          flex: 44,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 160.0),
+                child: Container(
+                  decoration: BoxDecoration(border: Border.all(color: commonGrey2, width: 1), borderRadius: BorderRadius.circular(8)),
+                  child: ScrollbarTheme(
+                    data: ScrollbarThemeData(
+                      thumbColor: WidgetStateProperty.all(commonGrey3),
+                      trackColor: WidgetStateProperty.all(Colors.grey.shade300),
+                    ),
+                    child: Scrollbar(
+                      controller: _scrollController,
+                      interactive: true,
+                      thumbVisibility: true,
+                      thickness: 8.0,
+                      child: ListView.builder(
+                        padding: EdgeInsets.zero,
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: _managers.length,
+                        itemBuilder: (context, index) {
+                          final manager = _managers[index];
+                          final isChecked = _selectedManagers[manager.id] ?? false;
+                          final isDisabled = manager.isMaster; // Master Admin은 선택 해제 불가
 
-                    return CheckboxListTile(
-                      title: Text(manager.name, style: bodyCommon(isDisabled ? commonGrey5 : commonGrey7)),
-                      value: isChecked,
-                      onChanged:
-                          isDisabled
-                              ? null
-                              : (bool? newValue) {
-                                setState(() {
-                                  _selectedManagers[manager.id] = newValue ?? false;
-                                });
-                              },
-                      controlAffinity: ListTileControlAffinity.leading,
-                      checkColor: Colors.white,
-                      activeColor: themeYellow,
-                      tileColor: isDisabled ? Colors.grey.shade50 : Colors.white,
-                    );
-                  },
+                          return SizedBox(
+                            height: 40,
+                            child: CheckboxListTile(
+                              title: Text(manager.name, style: bodyCommon(isDisabled ? commonGrey5 : commonBlack)),
+                              value: isChecked,
+                              onChanged:
+                                  isDisabled
+                                      ? null
+                                      : (bool? newValue) {
+                                        setState(() {
+                                          _selectedManagers[manager.id] = newValue ?? false;
+                                        });
+                                      },
+                              controlAffinity: ListTileControlAffinity.leading,
+                              checkColor: Colors.white,
+                              activeColor: themeYellow,
+                              tileColor: isDisabled ? commonGrey2 : Colors.white,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ],
@@ -562,29 +623,39 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
   }
 
   Widget inputText(String title, String hint, TextEditingController controller, Widget icon, {bool isRequired = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        RichText(
-          text: TextSpan(
-            text: title,
-            style: bodyTitle(commonGrey7),
-            children: [if (isRequired) TextSpan(text: ' *', style: bodyTitle(Colors.red))],
+        Expanded(
+          flex: 24,
+          child: RichText(
+            text: TextSpan(
+              text: title,
+              style: titleCommon(commonBlack),
+              children: [if (isRequired) TextSpan(text: ' *', style: titleCommon(Colors.red))],
+            ),
           ),
         ),
-        const SizedBox(height: 4),
-        InputBox(
-          controller: controller,
-          label: hint,
-          maxLength: 32,
-          isErrorText: true,
-          icon: icon,
-          onSaved: (val) {},
-          textStyle: bodyCommon(commonBlack),
-          textType: 'normal',
-          validator: (value) {
-            return null;
-          },
+        Expanded(
+          flex: 44,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              InputBox(
+                controller: controller,
+                label: hint,
+                maxLength: 32,
+                isErrorText: true,
+                icon: icon,
+                onSaved: (val) {},
+                textStyle: bodyCommon(commonBlack),
+                textType: 'normal',
+                validator: (value) {
+                  return null;
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -661,7 +732,7 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: bodyCommon(commonGrey7)),
+          Text(label, style: titleCommon(commonBlack)),
           const SizedBox(height: 4),
           InputBox(
             controller: controller,
@@ -691,120 +762,143 @@ class _AddBuildingDialogState extends ConsumerState<AddBuildingDialog> with Tick
   Widget step2Screen() {
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.only(bottom: 20),
+        padding: EdgeInsets.only(bottom: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20),
-
-            Text('Configuration', style: bodyTitle(commonBlack)),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: commonWhite, borderRadius: BorderRadius.circular(8), border: Border.all(color: commonGrey4)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-                  Row(
+            const SizedBox(height: 24),
+            Text('Unit Generator', style: bodyCommon(commonGrey5)),
+            const SizedBox(height: 24),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 24, child: Text('Configuration', style: titleCommon(commonBlack))),
+                Expanded(
+                  flex: 44,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildTextField(label: 'Start Floor', controller: _startFloorController),
-                      const SizedBox(width: 16),
-                      _buildTextField(label: 'End Floor', controller: _endFloorController),
-                      const SizedBox(width: 16),
-                      _buildTextField(label: 'Units per Floor', controller: _unitsPerFloorController),
+                      Row(
+                        children: [
+                          _buildTextField(label: 'Start Floor', controller: _startFloorController),
+                          const SizedBox(width: 16),
+                          _buildTextField(label: 'End Floor', controller: _endFloorController),
+                          const SizedBox(width: 16),
+                          _buildTextField(label: 'Units per Floor', controller: _unitsPerFloorController),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: InkWell(
+                          onTap: _generateUnits,
+                          child: Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              color:
+                                  _startFloorController.text.isNotEmpty &&
+                                          _endFloorController.text.isNotEmpty &&
+                                          _unitsPerFloorController.text.isNotEmpty
+                                      ? themeYellow
+                                      : commonGrey3,
+                            ),
+                            child: Text('Generate Preview', style: bodyTitle(commonWhite)),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 28),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: _generateUnits,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            _startFloorController.text.isNotEmpty &&
-                                    _endFloorController.text.isNotEmpty &&
-                                    _unitsPerFloorController.text.isNotEmpty
-                                ? themeYellow
-                                : commonGrey3,
-                        foregroundColor: commonWhite,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                      ),
-                      child: Text('Generate Preview', style: bodyTitle(commonWhite)),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
 
-            const SizedBox(height: 20),
-            Text('Preview (${_unitSet.length})', style: bodyTitle(commonBlack)),
-            const SizedBox(height: 8),
-
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: commonWhite, borderRadius: BorderRadius.circular(8), border: Border.all(color: commonGrey4)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            const SizedBox(height: 28),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 24, child: Text('Preview (${_unitSet.length})', style: titleCommon(commonBlack))),
+                Expanded(
+                  flex: 44,
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: InputBox(
-                          controller: _customUnitController,
-                          label: 'Add custom...',
-                          maxLength: 4,
-                          isErrorText: true,
-                          icon: Icon(Icons.layers_outlined, size: 22, color: commonGrey5),
-                          onSaved: (val) {},
-                          textStyle: bodyCommon(commonBlack),
-                          textType: 'number',
-                          validator: (value) {
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 48,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: _addCustomUnit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: themeYellow,
-                            padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                          ),
-                          child: const Icon(Icons.add, size: 24, color: commonWhite),
+                      Container(
+                        width: double.infinity,
+                        height: 380,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(color: commonGrey1, borderRadius: BorderRadius.circular(8)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: InputBox(
+                                    controller: _customUnitController,
+                                    label: 'Add custom...',
+                                    maxLength: 4,
+                                    isErrorText: true,
+                                    icon: Icon(Icons.layers_outlined, size: 22, color: commonGrey5),
+                                    onSaved: (val) {},
+                                    textStyle: bodyCommon(commonBlack),
+                                    textType: 'number',
+                                    validator: (value) {
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                SizedBox(
+                                  width: 48,
+                                  height: 48,
+                                  child: ElevatedButton(
+                                    onPressed: _addCustomUnit,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: themeYellow,
+                                      padding: EdgeInsets.zero,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                    ),
+                                    child: const Icon(Icons.add, size: 24, color: commonWhite),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            // 미리보기 그리드
+                            // 2. 미리보기 그리드 영역 (스크롤 가능하게 수정) ✅
+                            Expanded( // Column 내부에서 남은 300px의 공간을 차지하게 함
+                              child: _unitSet.isNotEmpty
+                                  ? Scrollbar( // 웹/데스크탑 사용성을 위해 스크롤바 추가
+                                thumbVisibility: true,
+                                child: SingleChildScrollView(
+                                  child: Wrap(
+                                    spacing: 8.0,
+                                    runSpacing: 8.0,
+                                    children: _unitSet.map((unit) {
+                                      if (unit.contains('유효한')) {
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                                          child: Text(unit, style: TextStyle(color: commonBlack)),
+                                        );
+                                      }
+                                      return _UnitChip(unitNumber: unit, onDelete: _deleteUnit);
+                                    }).toList(),
+                                  ),
+                                ),
+                              )
+                                  : Center(
+                                child: Text('No units generated yet.', style: bodyCommon(commonGrey5)),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  // 미리보기 그리드
-                  if (_unitSet.isNotEmpty)
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 8.0,
-                      clipBehavior: Clip.none,
-                      children:
-                          _unitSet.map((unit) {
-                            // 유효성 검사 메시지인 경우
-                            if (unit.contains('유효한')) {
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(unit, style: TextStyle(color: Colors.red.shade700)),
-                              );
-                            }
-                            // 🚨 호버 및 삭제 기능이 있는 칩 위젯 사용
-                            return _UnitChip(unitNumber: unit, onDelete: _deleteUnit);
-                          }).toList(),
-                    )
-                  else
-                    SizedBox(height: 180, child: Center(child: Text('No units generated yet.', style: bodyCommon(commonGrey5)))),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
@@ -842,9 +936,13 @@ class _UnitChipState extends State<_UnitChip> {
             child: Text(widget.unitNumber, style: bodyTitle(Colors.transparent)),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(color: themeYellow20, border: Border.all(color: themeYellow), borderRadius: BorderRadius.circular(4)),
-            child: Text(widget.unitNumber, style: bodyTitle(commonGrey6)),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              color: cautionYellowBg1,
+              border: Border.all(color: themeYellow),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(widget.unitNumber, style: bodyTitle(commonBlack)),
           ),
 
           // 2. 🚨 호버 시 나타나는 삭제 버튼 ('X' 아이콘)

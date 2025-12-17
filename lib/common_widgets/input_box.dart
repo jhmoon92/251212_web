@@ -277,7 +277,7 @@ class InputBoxState extends State<InputBox> with EmailAndPasswordValidators {
                       ? SvgPicture.asset("assets/images/ic_32_circle_check_checked.svg", height: 32, width: 32, fit: BoxFit.none)
                       : null,
               enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: commonGrey4, width: 1.0),
+                borderSide: BorderSide(color: commonGrey2, width: 1.0),
                 borderRadius: BorderRadius.all(Radius.circular(4.0)),
               ),
               focusedBorder: OutlineInputBorder(

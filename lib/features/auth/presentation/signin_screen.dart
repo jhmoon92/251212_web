@@ -76,11 +76,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with EmailAndPasswo
       appBar: AppBar(
         title: Row(
           children: [
-            SvgPicture.asset("assets/images/img_logo_s_moni_resipass.svg"),
+            SvgPicture.asset("assets/images/Moni_top_logo_signiture.svg"),
             const SizedBox(width: 8),
             Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Text("Moni Residence Pass Management System", style: captionCommon(commonGrey3)),
+              padding: const EdgeInsets.only(top: 4),
+              child: Text("Moni Residence Management System", style: captionCommon(commonGrey3)),
             ),
           ],
         ),
@@ -99,7 +99,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with EmailAndPasswo
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SvgPicture.asset("assets/images/img_logo_moni_resipass.svg"),
+                  SvgPicture.asset("assets/images/Moni_logo_signiture.svg"),
                   const SizedBox(height: 48),
                   Center(
                     child: SizedBox(

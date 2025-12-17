@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:moni_pod_web/config/style.dart';
 import '../../../common_widgets/status_chip.dart';
@@ -9,19 +8,20 @@ import '../../manage_building/domain/unit_model.dart';
 void showCriticalUnitsDialog(BuildContext context, bool isCritical) {
   showDialog(
     context: context,
+      useRootNavigator: true,
     builder: (BuildContext context) {
       return AlertDialog(
         titlePadding: EdgeInsets.zero,
         contentPadding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: SizedBox(
-          width: 1000,
+          width: 900,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               _buildHeader(context, isCritical),
-              Divider(height: 1, color: isCritical ? Colors.red : themeYellow),
+              Container(height: 4,color: isCritical ? warningRed : themeYellow),
               _buildListHeader(),
               _buildUnitList(isCritical ? dummyCriticalUnits : dummyWarningUnits, isCritical),
             ],
@@ -34,29 +34,22 @@ void showCriticalUnitsDialog(BuildContext context, bool isCritical) {
 
 Widget _buildHeader(BuildContext context, bool isCritical) {
   return Container(
-    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
     decoration: BoxDecoration(
-      color: isCritical ? themeRed20 : themeYellow20,
+      color: commonWhite,
       borderRadius: BorderRadius.only(topRight: Radius.circular(16), topLeft: Radius.circular(16)),
     ),
     child: Row(
       children: [
-        SvgPicture.asset(
-          isCritical ? "assets/images/ic_32_critical.svg" : "assets/images/ic_32_warning.svg",
-          width: 48,
-          fit: BoxFit.fitWidth,
-        ),
-        SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            isCritical
-                ? Text('Critical ${dummyCriticalUnits.length} units', style: titleMedium(Colors.red))
-                : Text('Warning ${dummyWarningUnits.length} units', style: titleMedium(themeYellow)),
-            isCritical
-                ? Text('Units with No Motion ≥ 24h', style: bodyCommon(Colors.red))
-                : Text('Units with 8h ≤ No Motion < 24h', style: bodyCommon(themeYellow)),
-          ],
+        isCritical
+            ? Text('Critical ${dummyCriticalUnits.length} units', style: titleLarge(warningRed))
+            : Text('Warning ${dummyWarningUnits.length} units', style: titleLarge(themeYellow)),
+        const SizedBox(width: 8),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: isCritical
+              ? Text('Critical Alert : No Movement for over 24 hours.', style: captionCommon(commonGrey5))
+              : Text('Warning Alert: No Movement between 8 and 24 hours.', style: captionCommon(commonGrey5)),
         ),
         Expanded(child: Container()),
         IconButton(icon: const Icon(Icons.close, color: commonGrey5), onPressed: () => Navigator.of(context).pop(), tooltip: 'Exit'),
@@ -67,18 +60,19 @@ Widget _buildHeader(BuildContext context, bool isCritical) {
 
 Widget _buildListHeader() {
   return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+    margin: const EdgeInsets.symmetric(horizontal: 24),
+    padding: const EdgeInsets.symmetric(vertical: 16),
     decoration: const BoxDecoration(
-      color: commonGrey1, // 밝은 회색 배경
-      border: Border(bottom: BorderSide(color: commonGrey2, width: 1)),
+      color: commonWhite, // 밝은 회색 배경
+      border: Border(bottom: BorderSide(color: commonGrey5, width: 1)),
     ),
     child: Row(
       children: [
-        Expanded(flex: 3, child: Text('REGION', style: bodyCommon(commonGrey5), overflow: TextOverflow.ellipsis)),
-        Expanded(flex: 4, child: Text('BUILDING', style: bodyCommon(commonGrey5), overflow: TextOverflow.ellipsis)),
-        Expanded(flex: 2, child: Text('UNIT', style: bodyCommon(commonGrey5), overflow: TextOverflow.ellipsis)),
-        Expanded(flex: 2, child: Text('LAST MOTION', style: bodyCommon(commonGrey5), overflow: TextOverflow.ellipsis)),
-        Expanded(flex: 2, child: Text('STATUS', style: bodyCommon(commonGrey5), overflow: TextOverflow.ellipsis)),
+        Expanded(flex: 3, child: Text('REGION', style: bodyTitle(commonBlack), overflow: TextOverflow.ellipsis)),
+        Expanded(flex: 4, child: Text('BUILDING', style: bodyTitle(commonBlack), overflow: TextOverflow.ellipsis)),
+        Expanded(flex: 2, child: Text('UNIT', style: bodyTitle(commonBlack), overflow: TextOverflow.ellipsis)),
+        Expanded(flex: 2, child: Text('LAST MOTION', style: bodyTitle(commonBlack), overflow: TextOverflow.ellipsis)),
+        Expanded(flex: 2, child: Text('STATUS', style: bodyTitle(commonBlack), overflow: TextOverflow.ellipsis)),
       ],
     ),
   );
@@ -100,7 +94,7 @@ Widget _buildUnitList(List<CriticalUnit> units, bool isCritical) {
           controller: scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           itemCount: units.length,
-          separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
+          separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16, color: commonGrey3),
           itemBuilder: (context, index) {
             final unit = units[index];
             return InkWell(
@@ -110,22 +104,23 @@ Widget _buildUnitList(List<CriticalUnit> units, bool isCritical) {
               },
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
                     child: Row(
                       children: [
-                        Expanded(flex: 3, child: Text(unit.region, style: bodyCommon(commonGrey7), overflow: TextOverflow.ellipsis)),
-                        Expanded(flex: 4, child: Text(unit.building.name, style: bodyCommon(commonGrey7), overflow: TextOverflow.ellipsis)),
-                        Expanded(flex: 2, child: Text(unit.unit, style: bodyCommon(commonGrey7), overflow: TextOverflow.ellipsis)),
+                        Expanded(flex: 3, child: Text(unit.region, style: bodyCommon(commonBlack), overflow: TextOverflow.ellipsis)),
+                        Expanded(flex: 4, child: Text(unit.building.name, style: bodyCommon(commonBlack), overflow: TextOverflow.ellipsis)),
+                        Expanded(flex: 2, child: Text(unit.unit, style: bodyCommon(commonBlack), overflow: TextOverflow.ellipsis)),
                         Expanded(
                           flex: 2,
-                          child: Text(unit.lastMotionTime, style: bodyCommon(commonGrey7), overflow: TextOverflow.ellipsis),
+                          child: Text(unit.lastMotionTime, style: bodyCommon(commonBlack), overflow: TextOverflow.ellipsis),
                         ),
                         Expanded(
                           flex: 2,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [StatusChip(status: unit.status), const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey)],
+                            children: [StatusChip(status: unit.status), const Icon(Icons.arrow_forward_ios, size: 12, color: commonBlack)],
                           ),
                         ),
                       ],

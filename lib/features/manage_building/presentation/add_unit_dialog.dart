@@ -18,7 +18,7 @@ class Manager {
 }
 
 void showAddUnitDialog(BuildContext context) {
-  showCustomDialog(context: context, title: 'Add Unit', content: const SizedBox(width: 500, height: 590, child: AddUnitDialog()));
+  showCustomDialog(context: context, title: 'Add Unit', content: const SizedBox(width: 680, height: 700, child: AddUnitDialog()));
 }
 
 class AddUnitDialog extends ConsumerStatefulWidget {
@@ -36,6 +36,7 @@ class _AddUnitDialogState extends ConsumerState<AddUnitDialog> with TickerProvid
   final TextEditingController _unitNumberController = TextEditingController();
   final TextEditingController _residentNameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _deviceNumberController = TextEditingController();
 
   final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
@@ -86,160 +87,72 @@ class _AddUnitDialogState extends ConsumerState<AddUnitDialog> with TickerProvid
       key: _formKey,
       child: Column(
         children: [
-          stepper(context),
+          Container(height: 4, color: themeYellow),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20), // 좌우 패딩만 유지
-              child: TabBarView(
-                physics: const NeverScrollableScrollPhysics(),
-                controller: _tabController,
+              padding: const EdgeInsets.symmetric(horizontal: 24), // 좌우 패딩만 유지
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Tab(child: step1Screen()),
-                  Tab(child: step2Screen()),
+                  const SizedBox(height: 24),
+                  inputText(
+                    'Unit Number',
+                    '# e.g. 101',
+                    _unitNumberController,
+                    const Icon(Icons.tag_sharp, color: Colors.grey),
+                    isRequired: true,
+                  ),
+                  const SizedBox(height: 28),
+
+                  inputText('Resident Name', 'Unassigned', _residentNameController, const Icon(Icons.person_outline, color: Colors.grey)),
+                  const SizedBox(height: 28),
+                  inputText(
+                    'Phone Number',
+                    'e.g. 010-1234-5678',
+                    _phoneNumberController,
+                    const Icon(Icons.phone_outlined, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                    children: [
+                      Expanded(flex: 24, child: Text('Number of Devices', style: titleCommon(commonBlack))),
+                      Expanded(flex: 44, child: _buildDeviceCounter()),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: EdgeInsets.only(left: 222),
+                    child: Text("These devices will be created as 'Offline' placeholders.", style: bodyCommon(commonGrey5)),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 24,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Assign Installer', style: titleCommon(commonBlack)),
+                            Text('(Optional)', style: bodyCommon(commonGrey5)),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 44,
+                        child: Column(children: [_buildInstallerSearch(), const SizedBox(height: 12), _buildInstallerList()]),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              // ... 기존 스타일 유지 ...
-              color: commonGrey2,
-              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('Cancel', style: bodyTitle(commonGrey4)),
-                ),
-                const SizedBox(width: 16),
-                isStep1
-                    ? Container()
-                    : InkWell(
-                      onTap: () {
-                        Future.delayed(const Duration(milliseconds: 10), () {
-                          if (mounted) {
-                            setState(() {
-                              FocusScope.of(context).unfocus();
-                              _controller1.reverse();
-                              _tabController.animateTo(0);
-                              isStep1 = true;
-                            });
-                          }
-                        });
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(right: 12),
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        decoration: BoxDecoration(color: commonWhite, borderRadius: BorderRadius.circular(8)),
-                        child: Row(
-                          children: [
-                            Transform.flip(flipX: true, child: Icon(Icons.arrow_right_alt, size: 24, color: commonGrey4)),
-                            const SizedBox(width: 4),
-                            Text('Back', style: bodyTitle(commonGrey4)),
-                          ],
-                        ),
-                      ),
-                    ),
-                isStep1
-                    ? addButton('Next Step', () {
-                      _controller1.forward();
-                      _tabController.animateTo(1);
-                      if (mounted) {
-                        setState(() {
-                          isStep1 = false;
-                        });
-                      }
-                    }, imageWidget: Icon(Icons.arrow_right_alt, size: 24, color: commonWhite))
-                    : addButton('Add Unit', () {}),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget stepper(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                Container(height: 8, decoration: BoxDecoration(borderRadius: BorderRadius.circular(4.0), color: themeYellow)),
-                const SizedBox(height: 4),
-                Text('1. Basic Info', style: bodyTitle(isStep1 ? commonGrey7 : commonGrey3)),
-              ],
-            ),
-          ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Column(
-              children: [
-                LinearProgressIndicator(
-                  minHeight: 8,
-                  borderRadius: BorderRadius.circular(4.0),
-                  backgroundColor: commonGrey2,
-                  color: themeYellow,
-                  value: _progressbarValue1,
-                ),
-                const SizedBox(height: 4),
-                Text('2. Initial Setup', style: bodyTitle(!isStep1 ? commonGrey7 : commonGrey3)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget step1Screen() {
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          inputText('Unit Number', '# e.g. 101', _unitNumberController, const Icon(Icons.tag_sharp, color: Colors.grey), isRequired: true),
-          const SizedBox(height: 24),
-          Container(height: 1, color: commonGrey2),
-          const SizedBox(height: 24),
-          Text("RESIDENT INFORMATION", style: bodyTitle(commonGrey5)),
-          const SizedBox(height: 16),
-          inputText('Resident Name', 'Unassigned', _residentNameController, const Icon(Icons.person_outline, color: Colors.grey)),
-          const SizedBox(height: 24),
-          inputText('Phone Number', 'e.g. 010-1234-5678', _phoneNumberController, const Icon(Icons.phone_outlined, color: Colors.grey)),
-          const SizedBox(height: 32),
-        ],
-      ),
-    );
-  }
-
-  Widget step2Screen() {
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Number of Devices', style: bodyTitle(commonBlack)),
-          const SizedBox(height: 12),
-          _buildDeviceCounter(),
-          const SizedBox(height: 8),
-          Text("These devices will be created as 'Offline' placeholders.", style: bodyCommon(commonGrey5)),
-          const SizedBox(height: 24),
-          Divider(height: 1, color: commonGrey2),
-          const SizedBox(height: 24),
-          Text('Assign Installer (Optional)', style: bodyTitle(commonBlack)),
-          const SizedBox(height: 12),
-          _buildInstallerSearch(),
-          const SizedBox(height: 12),
-          _buildInstallerList(),
-          const SizedBox(height: 24),
+          Container(padding: EdgeInsets.only(right: 24, bottom: 24), alignment: Alignment.bottomRight,child: addButton('Add Unit', () {},
+              imageWidget: Container())),
         ],
       ),
     );
@@ -254,7 +167,25 @@ class _AddUnitDialogState extends ConsumerState<AddUnitDialog> with TickerProvid
             if (_deviceCount > 1) _deviceCount--;
           });
         }, _deviceCount > 1),
+        const SizedBox(width: 16),
         Container(width: 50, alignment: Alignment.center, child: Text('$_deviceCount', style: bodyTitle(commonBlack))),
+
+        // SizedBox(
+        //   width: 144,
+        //   child: InputBox(
+        //     controller: _deviceNumberController,
+        //     initialText: _deviceCount.toString(),
+        //     maxLength: 32,
+        //     isErrorText: true,
+        //     onSaved: (val) {},
+        //     textStyle: bodyTitle(commonBlack),
+        //     textType: 'normal',
+        //     validator: (value) {
+        //       return null;
+        //     },
+        //   ),
+        // ),
+        const SizedBox(width: 16),
         _buildCounterButton(Icons.add, () {
           if (_deviceCount < 4) {
             setState(() {
@@ -270,14 +201,14 @@ class _AddUnitDialogState extends ConsumerState<AddUnitDialog> with TickerProvid
     return InkWell(
       onTap: isEnabled ? onPressed : null,
       child: Container(
-        height: 42,
-        width: 42,
+        height: 40,
+        width: 40,
         decoration: BoxDecoration(
-          color: isEnabled ? commonWhite : commonGrey2,
-          border: Border.all(color: isEnabled ? commonGrey4 : commonGrey3),
+          color: isEnabled ? commonWhite : commonGrey3,
+          border: Border.all(color: commonGrey2),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: Icon(icon, size: 20, color: isEnabled ? commonGrey7 : commonGrey5),
+        child: Icon(icon, size: 20, color: isEnabled ? commonBlack : commonWhite),
       ),
     );
   }
@@ -364,29 +295,38 @@ class _AddUnitDialogState extends ConsumerState<AddUnitDialog> with TickerProvid
   }
 
   Widget inputText(String title, String hint, TextEditingController controller, Widget icon, {bool isRequired = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        RichText(
-          text: TextSpan(
-            text: title,
-            style: bodyTitle(commonGrey7),
-            children: [if (isRequired) TextSpan(text: ' *', style: TextStyle(color: Colors.red, fontSize: 14))],
+        Expanded(
+          flex: 24,
+          child: RichText(
+            text: TextSpan(
+              text: title,
+              style: titleCommon(commonBlack),
+              children: [if (isRequired) TextSpan(text: ' *', style: titleCommon(Colors.red))],
+            ),
           ),
         ),
-        const SizedBox(height: 4),
-        InputBox(
-          controller: controller,
-          label: hint,
-          maxLength: 32,
-          isErrorText: true,
-          icon: icon,
-          onSaved: (val) {},
-          textStyle: bodyCommon(commonBlack),
-          textType: 'normal',
-          validator: (value) {
-            return null;
-          },
+        Expanded(
+          flex: 44,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InputBox(
+                controller: controller,
+                label: hint,
+                maxLength: 32,
+                isErrorText: true,
+                icon: icon,
+                onSaved: (val) {},
+                textStyle: bodyCommon(commonBlack),
+                textType: 'normal',
+                validator: (value) {
+                  return null;
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );

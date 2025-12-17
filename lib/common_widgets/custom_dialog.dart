@@ -39,33 +39,34 @@ class _CustomDialogState extends ConsumerState<CustomDialog> {
     return AlertDialog(
       titlePadding: EdgeInsets.zero,
       contentPadding: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       content: SizedBox(
-        width: 500,
+        width: 680,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                 decoration: BoxDecoration(
-                  color: themeYellow,
-                  borderRadius: BorderRadius.only(topRight: Radius.circular(16), topLeft: Radius.circular(16)),
+                  color: commonWhite,
+                  borderRadius: BorderRadius.only(topRight: Radius.circular(8), topLeft: Radius.circular(8)),
                 ),
                 child: Row(
                   children: [
-                    widget.titleWidget == null ? Text(widget.title, style: titleLarge(commonWhite)) : widget.titleWidget!,
+                    widget.titleWidget == null ? Text(widget.title, style: titleLarge(commonBlack)) : widget.titleWidget!,
                     Expanded(child: Container()),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                      tooltip: 'Exit',
-                    ),
+                    InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: SvgPicture.asset(
+                        "assets/images/ic_24_cancel.svg",
+                        colorFilter: const ColorFilter.mode(commonBlack, BlendMode.srcIn),
+                      ),
+                    )
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
               widget.contentWidget,
             ],
           ),

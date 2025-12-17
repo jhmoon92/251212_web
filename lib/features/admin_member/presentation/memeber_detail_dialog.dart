@@ -7,7 +7,11 @@ import '../../../common_widgets/custom_dialog.dart';
 import 'admin_members_screen.dart';
 
 void showMemberDetailDialog(BuildContext context, MemberCardData member) {
-  showCustomDialog(context: context, title: 'Member Detail', content: MemberDetailDialog(member: member));
+  showCustomDialog(
+    context: context,
+    title: 'Member Detail',
+    content: SizedBox(width: 680, height: 320, child: MemberDetailDialog(member: member)),
+  );
 }
 
 class MemberDetailDialog extends StatefulWidget {
@@ -52,42 +56,24 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-
-              _buildInfoField('ACCOUNT', _emailController, _isEditing),
-              const SizedBox(height: 20),
-              _buildInfoField('PHONE', _phoneController, _isEditing),
-              const SizedBox(height: 20),
-              _buildInfoField('ASSIGNMENTS', _regionController, _isEditing),
-            ],
+        Container(height: 4, color: themeYellow),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
+                _buildInfoField('Account', _emailController, _isEditing),
+                const SizedBox(height: 28),
+                _buildInfoField('Phone', _phoneController, _isEditing),
+                const SizedBox(height: 28),
+                _buildInfoField('Assignments', _regionController, _isEditing),
+              ],
+            ),
           ),
         ),
-        const SizedBox(height: 24),
-        Container(
-          decoration: BoxDecoration(
-            // ... 기존 스타일 유지 ...
-            color: commonGrey2,
-            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Cancel', style: bodyTitle(commonGrey4)),
-              ),
-              const SizedBox(width: 16),
-              addButton('Save Changes', () {}, imageWidget: const Icon(Icons.check, color: commonWhite, size: 24)),
-            ],
-          ),
-        ),
+        Container(padding: EdgeInsets.only(right: 24, bottom: 24), alignment: Alignment.bottomRight,child: addButton('Send Invite', () {},
+            imageWidget: Container()))
       ],
     );
   }
@@ -238,40 +224,31 @@ class _MemberDetailDialogState extends State<MemberDetailDialog> {
 
   // 정보 표시/입력 필드 위젯
   Widget _buildInfoField(String label, TextEditingController controller, bool isEditable) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: captionTitle(commonGrey7)),
-        const SizedBox(height: 4),
-        Stack(
-          children: [
-            InputBox(
-              controller: controller,
-              readOnly: !isEditable,
-              label: label,
-              maxLength: 32,
-              isErrorText: true,
-              onSaved: (val) {},
-              textStyle: bodyCommon(commonBlack),
-              textType: 'normal',
-              validator: (value) {
-                return null;
-              },
-            ),
-            isEditable ? Container() : Positioned.fill(child: Container(color: Colors.transparent)),
-          ],
+        Expanded(flex: 24, child: Text(label, style: titleCommon(commonBlack))),
+        Expanded(
+          flex: 44,
+          child: Stack(
+            children: [
+              InputBox(
+                controller: controller,
+                readOnly: !isEditable,
+                label: label,
+                maxLength: 32,
+                isErrorText: true,
+                onSaved: (val) {},
+                textStyle: bodyCommon(commonBlack),
+                textType: 'normal',
+                validator: (value) {
+                  return null;
+                },
+              ),
+              isEditable ? Container() : Positioned.fill(child: Container(color: Colors.transparent)),
+            ],
+          ),
         ),
-
-        // InputBox(textType: 'text', onSaved: (){}, validator: validator, textStyle: textStyle)
-        // TextFormField(
-        //   controller: controller,
-        //   style: bodyCommon(commonBlack),
-        //   decoration: InputDecoration(
-        //     isDense: true,
-        //     border: isEditable ? const OutlineInputBorder() : InputBorder.none,
-        //     contentPadding: isEditable ? const EdgeInsets.all(12) : EdgeInsets.zero,
-        //   ),
-        // ),
       ],
     );
   }
