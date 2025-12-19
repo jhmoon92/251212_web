@@ -8,6 +8,7 @@ import 'package:moni_pod_web/features/manage_building/presentation/edit_unit_dia
 import 'package:moni_pod_web/features/manage_building/presentation/unit_detail_screen.dart';
 
 import '../../../common/util/util.dart';
+import '../../../common_widgets/delete_dialog.dart';
 import '../../../common_widgets/input_box.dart';
 import '../../../config/style.dart';
 
@@ -28,7 +29,7 @@ class UnitTile extends StatefulWidget {
 
 class _UnitTileState extends State<UnitTile> with SingleTickerProviderStateMixin {
   bool _isOverlayVisible = false;
-
+  TextEditingController controller = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -158,12 +159,20 @@ class _UnitTileState extends State<UnitTile> with SingleTickerProviderStateMixin
                       ),
                     ),
                     Expanded(
-                      child: Row(
-                        children: [
-                          SvgPicture.asset("assets/images/ic_16_delete.svg", colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn)),
-                          const SizedBox(width: 4),
-                          Text('Delete ', style: bodyCommon(Colors.red)),
-                        ],
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            _isOverlayVisible = false;
+                          });
+                          showDeleteDialog(context, controller: controller, onDelete: () {}, name: 'unit name');
+                        },
+                        child: Row(
+                          children: [
+                            SvgPicture.asset("assets/images/ic_16_delete.svg", colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn)),
+                            const SizedBox(width: 4),
+                            Text('Delete ', style: bodyCommon(Colors.red)),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -448,19 +457,17 @@ class _BuildingDetailScreenState extends ConsumerState<BuildingDetailScreen> {
 
   Widget _buildUnitGrid() {
     // ✅ 1. 검색어(controller.text)를 기준으로 필터링된 리스트 생성
-    final filteredUnits = widget.building.unitList.where((unit) {
-      final searchTerm = controller.text.toLowerCase();
-      // 유닛 번호(unit.number)에 검색어가 포함되어 있는지 확인 (대소문자 구분 없음)
-      return unit.number.toLowerCase().contains(searchTerm);
-    }).toList();
+    final filteredUnits =
+        widget.building.unitList.where((unit) {
+          final searchTerm = controller.text.toLowerCase();
+          // 유닛 번호(unit.number)에 검색어가 포함되어 있는지 확인 (대소문자 구분 없음)
+          return unit.number.toLowerCase().contains(searchTerm);
+        }).toList();
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24),
       child: ScrollbarTheme(
-        data: ScrollbarThemeData(
-            thumbColor: WidgetStateProperty.all(commonGrey3),
-            trackColor: WidgetStateProperty.all(commonGrey3)
-        ),
+        data: ScrollbarThemeData(thumbColor: WidgetStateProperty.all(commonGrey3), trackColor: WidgetStateProperty.all(commonGrey3)),
         child: Scrollbar(
           controller: scrollController,
           interactive: true,
@@ -482,25 +489,23 @@ class _BuildingDetailScreenState extends ConsumerState<BuildingDetailScreen> {
                     spacing: spacing,
                     runSpacing: spacing,
                     // ✅ 2. 전체 리스트 대신 필터링된 filteredUnits를 사용합니다.
-                    children: filteredUnits.asMap().entries.map((entry) {
-                      final unit = entry.value;
-                      return SizedBox(
-                        height: 176,
-                        width: itemWidth,
-                        child: UnitTile(
-                          unit: unit,
-                          onTap: () {
-                            context.pushNamed(
-                              AppRoute.unitDetail.name,
-                              pathParameters: {
-                                'buildingId': widget.building.id.toString(),
-                                'unitId': unit.id.toString(),
+                    children:
+                        filteredUnits.asMap().entries.map((entry) {
+                          final unit = entry.value;
+                          return SizedBox(
+                            height: 176,
+                            width: itemWidth,
+                            child: UnitTile(
+                              unit: unit,
+                              onTap: () {
+                                context.pushNamed(
+                                  AppRoute.unitDetail.name,
+                                  pathParameters: {'buildingId': widget.building.id.toString(), 'unitId': unit.id.toString()},
+                                );
                               },
-                            );
-                          },
-                        ),
-                      );
-                    }).toList(),
+                            ),
+                          );
+                        }).toList(),
                   ),
                 );
               },
@@ -509,4 +514,5 @@ class _BuildingDetailScreenState extends ConsumerState<BuildingDetailScreen> {
         ),
       ),
     );
-  }}
+  }
+}

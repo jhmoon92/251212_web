@@ -147,6 +147,15 @@ TextStyle titleCommon(Color color) {
       leadingDistribution: TextLeadingDistribution.even);
 }
 
+TextStyle deleteCommon (Color color) {
+  return TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 16,
+      color: color,
+      height: 20 / 16,
+      leadingDistribution: TextLeadingDistribution.even);
+}
+
 TextStyle bodyTitle(Color color) {
   return TextStyle(
       fontWeight: FontWeight.w700,

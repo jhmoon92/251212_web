@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../../common_widgets/button.dart';
+import '../../../common_widgets/delete_dialog.dart';
 import '../../../common_widgets/input_box.dart';
 import '../../../config/style.dart';
 import '../../home/presentation/base_screen.dart';
@@ -165,6 +166,7 @@ class MemberCard extends ConsumerStatefulWidget {
 
 class _MemberCardState extends ConsumerState<MemberCard> {
   bool _isOverlayVisible = false;
+  TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -392,6 +394,7 @@ class _MemberCardState extends ConsumerState<MemberCard> {
                           setState(() {
                             _isOverlayVisible = false;
                           });
+                          showDeleteDialog(context, controller: controller, onDelete: () {}, name: 'member name');
                         },
                         child: Row(
                           children: [

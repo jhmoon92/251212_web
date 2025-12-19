@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:moni_pod_web/common_widgets/delete_dialog.dart';
 import 'package:moni_pod_web/common_widgets/status_chip.dart';
 import 'package:moni_pod_web/config/style.dart';
 import 'package:moni_pod_web/router.dart';
@@ -181,6 +182,7 @@ class BuildingCard extends ConsumerStatefulWidget {
 
 class _BuildingCardState extends ConsumerState<BuildingCard> {
   bool _isOverlayVisible = false;
+  TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -329,15 +331,23 @@ class _BuildingCardState extends ConsumerState<BuildingCard> {
                             ),
                           ),
                           Expanded(
-                            child: Row(
-                              children: [
-                                SvgPicture.asset(
-                                  "assets/images/ic_16_delete.svg",
-                                  colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
-                                ),
-                                const SizedBox(width: 4),
-                                Text('Delete ', style: bodyCommon(Colors.red)),
-                              ],
+                            child: InkWell(
+                              onTap: (){
+                                setState(() {
+                                  _isOverlayVisible = false;
+                                });
+                                showDeleteDialog(context, controller: controller, onDelete: (){}, name: 'building name');
+                              },
+                              child: Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    "assets/images/ic_16_delete.svg",
+                                    colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text('Delete ', style: bodyCommon(Colors.red)),
+                                ],
+                              ),
                             ),
                           ),
                         ],
