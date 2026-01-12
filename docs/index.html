@@ -12,7 +12,61 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-  <base href="/251212_web/">
+  <base href="/260112_web/">
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUc2bj_VUyH-kmgsFJxDgT4OXBUQBp2O0&libraries=places&v=weekly"></script>
+  <script>
+    function getGooglePredictions(input, callback) {
+     const service = new google.maps.places.AutocompleteService();
+     service.getPlacePredictions({
+       input: input,
+       types: ['address'],
+       language: 'ko'
+     }, (predictions, status) => {
+       if (status === 'OK' && predictions) {
+         const results = predictions.map(p => ({
+           'description': p.description,
+           'place_id': p.place_id
+         }));
+         // [핵심] JSON 문자열로 변환해서 전달
+         callback(JSON.stringify(results));
+       } else {
+         callback(JSON.stringify([]));
+       }
+     });
+   }
+
+  async function getPlaceDetails(placeId, callback) {
+    try {
+      const { Geocoder } = await google.maps.importLibrary("geocoding");
+      const geocoder = new Geocoder();
+
+      geocoder.geocode({ placeId: placeId }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          const res = results[0];
+          const adminArea = res.address_components.find(c =>
+            c.types.includes('administrative_area_level_1')
+          );
+
+          // 1. 데이터를 객체로 만듭니다.
+          const data = {
+            'address': res.formatted_address,
+            'latitude': res.geometry.location.lat(),
+            'longitude': res.geometry.location.lng(),
+            'region': adminArea ? adminArea.long_name : ""
+          };
+
+          // 2. [중요] JSON.stringify를 사용해 문자열로 변환하여 전달합니다.
+          callback(JSON.stringify(data));
+        } else {
+          callback(null);
+        }
+      });
+    } catch (e) {
+      callback(null);
+    }
+  }
+  </script>
+
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -29,8 +83,6 @@
 
   <title>moni_pod_web</title>
   <link rel="manifest" href="manifest.json">
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUc2bj_VUyH-kmgsFJxDgT4OXBUQBp2O0"></script>
-
   <style id="splash-screen-style">
     html {
       height: 100%
